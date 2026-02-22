@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAPE-██ // PLAYBACK</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0908;
+  --tape-bg: #0d0c0a;
+  --text: #b8b0a0;
+  --text-dim: #4a4538;
+  --text-bright: #d4cbb8;
+  --redacted: #c43e2a;
+  --static: #1a1814;
+  --timestamp: #7a9c5a;
+  --speaker1: #8aaa6a;
+  --speaker2: #aa6a6a;
+  --speaker3: #6a8aaa;
+  --speaker4: #aa3a3a;
+  --speaker5: #aa8a5a;
+  --speaker6: #7a7aaa;
+  --border: #1e1c18;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+::selection { background: var(--redacted); color: #000; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 1px,
+    rgba(0,0,0,0.15) 1px, rgba(0,0,0,0.15) 3px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.vhs-tracking {
+  position: fixed;
+  left: 0; right: 0;
+  height: 3px;
+  background: rgba(255,255,255,0.04);
+  z-index: 9998;
+  pointer-events: none;
+  animation: tracking-move 8s linear infinite;
+}
+
+@keyframes tracking-move {
+  0% { top: -10px; }
+  100% { top: 110vh; }
+}
+
+.vhs-tracking-2 {
+  animation-duration: 12s;
+  animation-delay: -4s;
+  height: 2px;
+  background: rgba(255,255,255,0.02);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+  pointer-events: none;
+  z-index: 9997;
+}
+
+.vhs-ui {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 100;
+  font-family: 'VT323', monospace;
+  pointer-events: none;
+}
+
+.vhs-left { display: flex; flex-direction: column; gap: 4px; }
+
+.vhs-rec {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 18px; color: var(--redacted); letter-spacing: 3px;
+}
+
+.rec-dot {
+  width: 8px; height: 8px;
+  background: var(--redacted);
+  border-radius: 50%;
+  animation: rec-blink 1.5s ease-in-out infinite;
+}
+
+@keyframes rec-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.vhs-label { font-size: 14px; color: var(--text-dim); letter-spacing: 2px; }
+
+.vhs-right { text-align: right; display: flex; flex-direction: column; gap: 4px; }
+
+.vhs-timestamp {
+  font-size: 20px; color: var(--timestamp);
+  letter-spacing: 2px; text-shadow: 1px 1px 0 rgba(0,0,0,0.8);
+}
+
+.vhs-date { font-size: 14px; color: var(--text-dim); letter-spacing: 2px; }
+.vhs-quality { font-size: 12px; color: var(--text-dim); opacity: 0.5; }
+
+.vhs-bottom {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 36px;
+  background: rgba(5,5,4,0.9);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 24px; gap: 16px;
+  z-index: 100;
+  font-family: 'VT323', monospace;
+}
+
+.play-icon { color: var(--text-dim); font-size: 16px; letter-spacing: 2px; }
+
+.progress-bar {
+  flex: 1; height: 2px;
+  background: var(--border);
+  position: relative; border-radius: 1px;
+}
+
+.progress-fill {
+  height: 100%; background: var(--text-dim);
+  border-radius: 1px; width: 0%;
+  transition: width 0.5s linear;
+}
+
+.tape-counter {
+  font-size: 14px; color: var(--text-dim);
+  letter-spacing: 2px; font-variant-numeric: tabular-nums;
+}
+
+.tape-container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 80px 24px 80px;
+}
+
+.tape-header {
+  text-align: center;
+  padding: 40px 0 50px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+
+.tape-id {
+  font-family: 'VT323', monospace;
+  font-size: 32px; color: var(--text-bright);
+  letter-spacing: 6px; margin-bottom: 8px;
+}
+
+.tape-classification {
+  font-size: 10px; color: var(--redacted);
+  letter-spacing: 4px; text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.tape-desc {
+  font-size: 11px; color: var(--text-dim);
+  letter-spacing: 2px; line-height: 2;
+}
+
+.transcript-note {
+  font-size: 10px; color: var(--text-dim);
+  letter-spacing: 2px; margin-bottom: 30px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  background: var(--tape-bg);
+  line-height: 1.8;
+}
+
+.ts-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 32px 0 20px;
+  font-family: 'VT323', monospace;
+}
+
+.ts-divider .ts {
+  font-size: 14px; color: var(--timestamp);
+  letter-spacing: 2px; white-space: nowrap;
+}
+
+.ts-divider .ts-line {
+  flex: 1; height: 1px; background: var(--border);
+}
+
+.line {
+  margin-bottom: 18px;
+  font-size: 12px; line-height: 1.9;
+  padding-left: 16px;
+  border-left: 2px solid var(--border);
+}
+
+.line .speaker {
+  font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 3px;
+  display: block;
+}
+
+.sp-1 { border-left-color: var(--speaker1); }
+.sp-2 { border-left-color: var(--speaker2); }
+.sp-3 { border-left-color: var(--speaker3); }
+.sp-4 { border-left-color: var(--speaker4); }
+.sp-5 { border-left-color: var(--speaker5); }
+.sp-6 { border-left-color: var(--speaker6); }
+
+.sp-1 .speaker { color: var(--speaker1); }
+.sp-2 .speaker { color: var(--speaker2); }
+.sp-3 .speaker { color: var(--speaker3); }
+.sp-4 .speaker { color: var(--speaker4); }
+.sp-5 .speaker { color: var(--speaker5); }
+.sp-6 .speaker { color: var(--speaker6); }
+
+.line .dialogue { color: var(--text); }
+
+.sp-dead { opacity: 0.35; border-left-style: dashed; }
+.sp-dead .speaker { text-decoration: line-through; }
+
+.sp-injured { opacity: 0.6; }
+
+.r {
+  color: var(--redacted); font-weight: 500;
+  letter-spacing: 1px; font-size: 11px;
+}
+
+.stage {
+  font-size: 11px; color: var(--text-dim);
+  font-style: italic; margin: 12px 0;
+  padding: 8px 16px;
+  border-left: 2px solid var(--border);
+  opacity: 0.7;
+}
+
+.stage-violent {
+  font-size: 11px; color: var(--redacted);
+  font-style: italic; margin: 12px 0;
+  padding: 8px 16px;
+  border-left: 2px solid var(--redacted);
+  opacity: 0.8;
+  background: rgba(196, 62, 42, 0.03);
+}
+
+.static-block {
+  margin: 20px 0; padding: 12px 16px;
+  background: repeating-linear-gradient(
+    0deg, var(--static) 0px, var(--static) 2px,
+    transparent 2px, transparent 4px
+  );
+  font-family: 'VT323', monospace;
+  font-size: 14px; color: var(--text-dim);
+  letter-spacing: 3px; text-align: center;
+  opacity: 0.6; position: relative; overflow: hidden;
+}
+
+.static-block::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.01) 50%, transparent 100%);
+  animation: static-sweep 4s linear infinite;
+}
+
+@keyframes static-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.static-block-heavy {
+  margin: 20px 0; padding: 20px 16px;
+  background: repeating-linear-gradient(
+    0deg, var(--static) 0px, var(--static) 1px,
+    rgba(196,62,42,0.05) 1px, rgba(196,62,42,0.05) 3px
+  );
+  font-family: 'VT323', monospace;
+  font-size: 16px; color: var(--redacted);
+  letter-spacing: 4px; text-align: center;
+  opacity: 0.7; position: relative; overflow: hidden;
+  border: 1px solid rgba(196,62,42,0.15);
+  animation: heavy-static 0.5s steps(3) infinite;
+}
+
+@keyframes heavy-static {
+  0% { opacity: 0.7; }
+  50% { opacity: 0.5; }
+  100% { opacity: 0.7; }
+}
+
+.audio-corrupt {
+  font-size: 10px; color: var(--text-dim);
+  letter-spacing: 3px; margin: 6px 0; opacity: 0.4;
+}
+
+.audio-corrupt .trap-ts {
+  color: var(--timestamp);
+  opacity: 0.7;
+}
+
+.death-notice {
+  margin: 16px 0;
+  padding: 10px 16px;
+  border: 1px solid rgba(196,62,42,0.2);
+  background: rgba(196,62,42,0.02);
+  font-size: 10px;
+  color: var(--redacted);
+  letter-spacing: 2px;
+  opacity: 0.7;
+}
+
+.tape-end {
+  text-align: center; padding: 50px 0;
+  margin-top: 40px;
+  border-top: 1px solid var(--border);
+}
+
+.tape-end .end-text {
+  font-family: 'VT323', monospace;
+  font-size: 24px; color: var(--text-dim);
+  letter-spacing: 6px;
+  animation: end-flicker 3s ease-in-out infinite;
+}
+
+@keyframes end-flicker {
+  0%, 96%, 100% { opacity: 0.5; }
+  97% { opacity: 0.2; }
+  98% { opacity: 0.6; }
+  99% { opacity: 0.3; }
+}
+
+.tape-end .end-sub {
+  font-size: 9px; color: var(--text-dim);
+  letter-spacing: 3px; margin-top: 12px; opacity: 0.3;
+}
+
+.glitch-flash {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #fff; opacity: 0;
+  pointer-events: none; z-index: 9996;
+  mix-blend-mode: overlay;
+}
+
+.aberration {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none; z-index: 9994;
+  opacity: 0;
+  background: linear-gradient(90deg, rgba(255,0,0,0.02) 0%, transparent 33%, transparent 66%, rgba(0,0,255,0.02) 100%);
+  transition: opacity 0.3s;
+}
+
+@media (max-width: 600px) {
+  .tape-container { padding: 70px 16px 70px; }
+  .tape-id { font-size: 22px; letter-spacing: 4px; }
+  .vhs-ui { padding: 10px 14px; }
+  .vhs-timestamp { font-size: 16px; }
+  .vhs-rec { font-size: 14px; }
+  .line { padding-left: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="vhs-tracking"></div>
+<div class="vhs-tracking vhs-tracking-2"></div>
+<div class="glitch-flash" id="glitchFlash"></div>
+<div class="aberration" id="aberration"></div>
+
+<div class="vhs-ui">
+  <div class="vhs-left">
+    <div class="vhs-rec"><div class="rec-dot"></div>PLAY</div>
+    <div class="vhs-label">TAPE-██</div>
+  </div>
+  <div class="vhs-right">
+    <div class="vhs-timestamp" id="vhsTime">00:00:00</div>
+    <div class="vhs-date">2189.██.██</div>
+    <div class="vhs-quality">SP ■ HiFi</div>
+  </div>
+</div>
+
+<div class="vhs-bottom">
+  <span class="play-icon">▶ PLAY</span>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <span class="tape-counter" id="tapeCounter">0000</span>
+</div>
+
+<div class="tape-container">
+
+  <div class="tape-header">
+    <div class="tape-classification">CLASSIFICATION: [REDACTED] // UNAUTHORIZED PLAYBACK PROHIBITED</div>
+    <div class="tape-id">TAPE ██-C</div>
+    <div class="tape-desc">
+      능력자 대표 회담 녹화본<br>
+      일시: 2189년 ██월 ██일 &nbsp;│&nbsp; 장소: <span class="r">[REDACTED]</span><br>
+      참석자: 6명 &nbsp;│&nbsp; 녹화 시간: 약 ██분<br>
+      <span style="color: var(--redacted); font-size: 9px;">※ 본 녹화본은 <span class="r">[REDACTED]</span> 조항에 의해 공개가 금지되어 있습니다</span>
+    </div>
+  </div>
+
+  <div class="transcript">
+
+    <div class="transcript-note">
+      [NOTE] 음성 분석 결과, 참석자는 6개 세력의 대표로 추정됨.<br>
+      신원 정보는 전량 검열 처리됨. 이하 발언자를 코드명으로 표기.<br><br>
+      화자 A — <span class="r">[REDACTED]</span> / 수호파 (온건)<br>
+      화자 B — <span class="r">[REDACTED]</span> / 수호파 (능력자 제거 주장)<br>
+      화자 C — <span class="r">[REDACTED]</span> / 수호파 (격리 주장) <span style="color:var(--redacted);">†</span><br>
+      화자 D — <span class="r">[REDACTED]</span> / 지배파 (극단)<br>
+      화자 E — <span class="r">[REDACTED]</span> / 지배파 (통치 주장)<br>
+      화자 F — <span class="r">[REDACTED]</span> / 지배파 (통제 온건) <span style="color:var(--redacted);">†</span>
+    </div>
+
+    <!-- ===== SECTION 1: 개회 ===== -->
+    <!-- PUZZLE: 12초 → · (dot)     -->
+    <div class="ts-divider">
+      <span class="ts">[00:01:12]</span>
+      <div class="ts-line"></div>
+    </div>
+
+    <div class="stage">의자 끌리는 소리. 잡음. 누군가 마이크를 두드리는 소리.</div>
+
+    <div class="line sp-1">
+      <span class="speaker">화자 A</span>
+      <span class="dialogue">...다들 와 주셔서 감사합니다. 오늘 이 자리가 얼마나 어렵게 만들어진 건지, 여기 계신 분들은 다 아실 거라 믿습니다.</span>
+    </div>
+
+    <div class="line sp-4">
+      <span class="speaker">화자 D</span>
+      <span class="dialogue">어렵게 만들어졌다. 그래서? 시간 낭비 안 했으면 좋겠는데.</span>
+    </div>
+
+    <div class="line sp-5">
+      <span class="speaker">화자 E</span>
+      <span class="dialogue">동의한다. 바쁜 사람들이니, 핵심만.</span>
+    </div>
+
+    <div class="line sp-1">
+      <span class="speaker">화자 A</span>
+      <span class="dialogue">...좋습니다. 단도직입적으로 말하겠습니다. <span class="r">[REDACTED]</span> 이후 능력자 간의 충돌로 민간인 피해가 <span class="r">[REDACTED]</span>명을 넘었습니다. 이대로는 우리 모두가 끝납니다.</span>
+    </div>
+
+    <!-- ===== SECTION 2: 입장 표명 ===== -->
+    <!-- PUZZLE: 47초 → - (dash)          -->
+    <div class="ts-divider">
+      <span class="ts">[00:04:47]</span>
+      <div class="ts-line"></div>
+    </div>
+
+    <div class="line sp-6">
+      <span class="speaker">화자 F</span>
+      <span class="dialogue">저도 같은 생각입니다. 일반인들이 불안해하고 있어요. 우리가 먼저 질서를 제안하면—</span>
+    </div>
+
+    <div class="line sp-2">
+      <span class="speaker">화자 B</span>
+      <span class="dialogue">질서? 우리가 질서를 만든다고? 웃기지 마. 우리가 문제야. 능력자라는 존재 자체가.</span>
+    </div>
+
+    <div class="stage">잠시 침묵.</div>
+
+    <div class="line sp-5">
+      <span class="speaker">화자 E</span>
+      <span class="dialogue">...뭐라고?</span>
+    </div>
+
+    <div class="line sp-2">
+      <span class="speaker">화자 B</span>
+      <span class="dialogue">사실을 말한 거야. 폭주 사태가 왜 일어났는지 다들 알잖아. 능력이 있으니까. 힘이 있으니까. 그러니까 미쳐 날뛰는 거지.</span>
+    </div>
+
+    <div class="line sp-4">
+      <span class="speaker">화자 D</span>
+      <span class="dialogue">그래서 뭐, 우리가 다 죽으면 세상이 평화로워질 것 같아?</span>
+    </div>
+
+    <div class="line sp-2">
+      <span class="speaker">화자 B</span>
+      <span class="dialogue">적어도 일반인들은 안전해지겠지.</span>
+    </div>
+
+    <!-- TRAP 1 -->
+    <div class="audio-corrupt">[ 음성 왜곡 — <span class="trap-ts">[00:05:30]</span> 부근 약 4초간 판독 불가 ]</div>
+
+    <div class="line sp-3">
+      <span class="speaker">화자 C</span>
+      <span class="dialogue">...극단적인 방법을 쓸 필요는 없습니다. 능력자와 일반인이 함께 살 수 없다면, 분리하면 됩니다. 각자의 구역에서, 각자의 규칙으로.</span>
+    </div>
+
+    <div class="line sp-1">
+      <span class="speaker">화자 A</span>
+      <span class="dialogue">격리요? C, 그건 결국—</span>
+    </div>
+
+    <div class="line sp-3">
+      <span class="speaker">화자 C</span>
+      <span class="dialogue">격리가 아닙니다. 보호입니다. 서로를 위한.</span>
+    </div>
+
+    <!-- ===== SECTION 3: 격화 ===== -->
+    <!-- PUZZLE: 03초 → · (dot)     -->
+    <!-- ·-· = R COMPLETE           -->
+    <div class="ts-divider">
+      <span class="ts">[00:07:03]</span>
+      <div class="ts-line"></div>
+    </div>
+
+    <div class="line sp-4">
+      <span class="speaker">화자 D</span>
+      <span class="dialogue">보호. 격리. 제거. 하나같이 우리가 양보하자는 얘기야. 왜?</span>
+    </div>
+
+    <div class="line sp-1">
+      <span class="speaker">화자 A</span>
+      <span class="dialogue">왜냐면 우리가 더 강하니까요. 강한 쪽이 먼저 손을 내밀어야—</span>
+    </div>
+
+    <div class="line sp-4">
+      <span class="speaker">화자 D</span>
+      <span class="dialogue">강한 쪽이 왜 손을 내밀어야 하는데? 강하니까 이기는 거지. 자연의 법칙이야. <span class="r">[REDACTED]</span>에서 내가 뭘 봤는지 알아? 일반인들이 능력자 아이를 <span class="r">[REDACTED]</span>하는 걸 봤어. 걔가 뭘 했냐고. 아무것도 안 했어.</span>
+    </div>
+
+    <div class="line sp-6">
+      <span class="speaker">화자 F</span>
+      <span class="dialogue">D, 진정하세요. 당신 말에도 일리가 있어요. 하지만 답이 학살일 수는 없잖아요.</span>
+    </div>
+
+    <div class="line sp-6">
+      <span class="speaker">화자 F</span>
+      <span class="dialogue">관리요. 시스템. 일반인들이 능력자를 두려워하지 않게 만드는 거예요. 부드럽게.</span>
+    </div>
+
+    <div class="line sp-2">
+      <span class="speaker">화자 B</span>
+      <span class="dialogue">그게 통제잖아. 결국 위에서 아래를 내려다보겠다는 거지.</span>
+    </div>
+
+    <!-- TRAP 2 -->
+    <div class="audio-corrupt">[ <span class="trap-ts">[00:09:30]</span> 마이크 접촉 불량 — 잡음 ]</div>
+
+    <div class="line sp-5">
+      <span class="speaker">화자 E</span>
+      <span class="dialogue">—정리하자. A는 공존. B는 능력자 제거. C는 분리. D는 일반인 제거. F는 시스템 관리. 나는? 나는 왕이 되면 된다고 생각해.</span>
+    </div>
+
+    <div class="line sp-3">
+      <span class="speaker">화자 C</span>
+      <span class="dialogue">...그건 보호가 아니라 지배입니다.</span>
+    </div>
+
+    <div class="line sp-4">
+      <span class="speaker">화자 D</span>
+      <span class="dialogue">(C를 향해) 너도 결국 분리라는 예쁜 말로 포장하고 있을 뿐이야. 솔직해져. 이 자리에 있는 누구도 진짜 평화 따위 원하지 않아.</span>
+    </div>
+
+    <div class="line sp-3">
+      <span class="speaker">화자 C</span>
+      <span class="dialogue">저는 원합니다. 적어도 당신과는 다르게.</span>
+    </div>
+
+    <div class="line sp-4">
+      <span class="speaker">화자 D</span>
+      <span class="dialogue">...뭐라고?</span>
+    </div>
+
+    <!-- ===== SECTION 4: 충돌 ===== -->
+    <!-- PUZZLE: 00초 → SEPARATOR   -->
+    <div class="ts-divider">
+      <span class="ts">[00:11:00]</span>
+      <div class="ts-line"></div>
+    </div>
+
+    <div class="line sp-6">
+      <span class="speaker">화자 F</span>
+      <span class="dialogue">다들 진정—</span>
+    </div>
+
+    <div class="line sp-4">
+      <span class="speaker">화자 D</span>
+      <span class="dialogue">닥쳐. (C를 향해) 한 번만 더 그런 식으로 말해봐. 네가 "다르다"고? 우리 쪽 사람들이 <span class="r">[REDACTED]</span>에서 어떻게 죽었는지 알기나 해?</span>
+    </div>
+
+    <div class="line sp-3">
+      <span class="speaker">화자 C</span>
+      <span class="dialogue">알고 있습니다. 하지만 그것이 일반인 전체를 학살할 이유가 되지는—</span>
+    </div>
+
+    <div class="stage-violent">테이블이 뒤집히는 소리. 금속이 부딪히는 소리.</div>
+
+    <div class="line sp-1">
+      <span class="speaker">화자 A</span>
+      <span class="dialogue">D, 그만—!</span>
+    </div>
+
+    <div class="stage-violent">충격음. 무언가가 벽에 부딪히는 소리. 비명.</div>
+
+    <!-- TRAP 3 -->
+    <div class="audio-corrupt">[ <span class="trap-ts">[00:11:22]</span> 급격한 음량 왜곡 — 클리핑 발생 ]</div>
+
+    <div class="line sp-5">
+      <span class="speaker">화자 E</span>
+      <span class="dialogue">—이 미친, D!! 여기서 이러면—</span>
+    </div>
+
+    <div class="stage-violent">연속적인 충격음. 유리 깨지는 소리. 능력 발동으로 추정되는 저주파 진동 감지.</div>
+
+    <div class="line sp-2">
+      <span class="speaker">화자 B</span>
+      <span class="dialogue">F!! 피해—!!</span>
+    </div>
+
+    <div class="static-block-heavy">
+      ▓▓▓ CRITICAL SIGNAL DISRUPTION — ABILITY INTERFERENCE DETECTED ▓▓▓
+    </div>
+
+    <div class="stage-violent">장시간 폭음. 녹화 장비 흔들림. 화면 극심한 왜곡.</div>
+
+    <div class="audio-corrupt">[ 영상/음성 동시 손상 — 약 47초간 복구 불가 ]</div>
+
+    <div class="static-block-heavy">
+      ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+    </div>
+
+    <!-- ===== SECTION 5: 직후 ===== -->
+    <!-- PUZZLE: 38초 → - (dash)    -->
+    <div class="ts-divider">
+      <span class="ts">[00:15:38]</span>
+      <div class="ts-line"></div>
+    </div>
+
+    <div class="audio-corrupt">[ 영상 부분 복구 — 화질 심각하게 저하 ]</div>
+
+    <div class="stage-violent">신음 소리. 무언가 질질 끌리는 소리. 액체가 떨어지는 소리.</div>
+
+    <div class="death-notice">
+      [SYSTEM] 생체 신호 소실 감지 — 화자 C / 사인: <span class="r">[REDACTED]</span>
+    </div>
+
+    <div class="death-notice">
+      [SYSTEM] 생체 신호 소실 감지 — 화자 F / 사인: <span class="r">[REDACTED]</span>
+    </div>
+
+    <div class="line sp-1">
+      <span class="speaker">화자 A</span>
+      <span class="dialogue">(...떨리는 목소리) C... C!! 일어나... 제발...</span>
+    </div>
+
+    <div class="line sp-5">
+      <span class="speaker">화자 E</span>
+      <span class="dialogue">...끝났어. 둘 다. F도.</span>
+    </div>
+
+    <div class="stage-violent">누군가 바닥을 치는 소리.</div>
+
+    <div class="line sp-1">
+      <span class="speaker">화자 A</span>
+      <span class="dialogue">D... 당신이... 뭘 한 거야...!</span>
+    </div>
+
+    <div class="line sp-4">
+      <span class="speaker">화자 D</span>
+      <span class="dialogue">...</span>
+    </div>
+
+    <div class="line sp-4">
+      <span class="speaker">화자 D</span>
+      <span class="dialogue">먼저 건든 건 C야.</span>
+    </div>
+
+    <div class="line sp-1">
+      <span class="speaker">화자 A</span>
+      <span class="dialogue">말을 했을 뿐이잖아!! 말을!!</span>
+    </div>
+
+    <!-- TRAP 4 -->
+    <div class="audio-corrupt">[ <span class="trap-ts">[00:17:00]</span> A의 음성 클리핑 — 레벨 초과 ]</div>
+
+    <!-- ===== SECTION 6: B 상태 ===== -->
+    <!-- PUZZLE: 11초 → · (dot)       -->
+    <div class="ts-divider">
+      <span class="ts">[00:18:11]</span>
+      <div class="ts-line"></div>
+    </div>
+
+    <div class="line sp-5">
+      <span class="speaker">화자 E</span>
+      <span class="dialogue">...B는?</span>
+    </div>
+
+    <div class="line sp-2 sp-injured">
+      <span class="speaker">화자 B</span>
+      <span class="dialogue">(...거친 호흡) ...살아는 있어. <span class="r">[REDACTED]</span>가 관통했지만... 급소는 빗나간 것 같아.</span>
+    </div>
+
+    <div class="line sp-1">
+      <span class="speaker">화자 A</span>
+      <span class="dialogue">움직이지 마. 지혈부터—</span>
+    </div>
+
+    <div class="line sp-2 sp-injured">
+      <span class="speaker">화자 B</span>
+      <span class="dialogue">됐어... 이걸로 증명된 거잖아. 능력자끼리도 이 꼴인데... 일반인이랑 공존? 웃기지도 않아...</span>
+    </div>
+
+    <div class="line sp-4">
+      <span class="speaker">화자 D</span>
+      <span class="dialogue">(조용히) ...F는 B를 감싸다가 맞은 거야. 알아둬.</span>
+    </div>
+
+    <div class="stage">긴 침묵. B의 거친 호흡 소리만 들린다.</div>
+
+    <div class="line sp-5">
+      <span class="speaker">화자 E</span>
+      <span class="dialogue">...봤지? 이게 현실이야. 대화 따위로는 아무것도 해결 안 돼.</span>
+    </div>
+
+    <!-- ===== SECTION 7: 결렬 ===== -->
+    <!-- PUZZLE: 44초 → - (dash)    -->
+    <div class="ts-divider">
+      <span class="ts">[00:22:44]</span>
+      <div class="ts-line"></div>
+    </div>
+
+    <div class="line sp-1">
+      <span class="speaker">화자 A</span>
+      <span class="dialogue">...이게 평화 회의의 결말입니까.</span>
+    </div>
+
+    <div class="line sp-4">
+      <span class="speaker">화자 D</span>
+      <span class="dialogue">처음부터 결말은 정해져 있었어. 네가 보려 하지 않았을 뿐이지.</span>
+    </div>
+
+    <div class="line sp-2 sp-injured">
+      <span class="speaker">화자 B</span>
+      <span class="dialogue">(...기침) ...아직 안 끝났어. 능력자가 전부 사라지는 게... 유일한 답이라는 걸... 오늘 증명해준 거야, D.</span>
+    </div>
+
+    <div class="line sp-4">
+      <span class="speaker">화자 D</span>
+      <span class="dialogue">그래. 나부터 죽여봐. 할 수 있으면.</span>
+    </div>
+
+    <div class="stage">발걸음 소리. D가 자리를 뜬다.</div>
+
+    <div class="line sp-4">
+      <span class="speaker">화자 D</span>
+      <span class="dialogue">(문 앞에서) ...다음에는 회의장이 아니라 전장에서 보자.</span>
+    </div>
+
+    <div class="stage">문이 닫히는 소리.</div>
+
+    <!-- TRAP 5 -->
+    <div class="audio-corrupt">[ <span class="trap-ts">[00:24:08]</span> 외부 소음 감지 — 출처 불명 ]</div>
+
+    <div class="line sp-5">
+      <span class="speaker">화자 E</span>
+      <span class="dialogue">...나도 간다. 시체 처리는 알아서들 해.</span>
+    </div>
+
+    <div class="stage">발걸음 소리. 문이 닫힌다.</div>
+
+    <!-- ===== SECTION 8: 마지막 ===== -->
+    <!-- PUZZLE: 51초 → - (dash)      -->
+    <!-- -·-- = Y COMPLETE            -->
+    <div class="ts-divider">
+      <span class="ts">[00:25:51]</span>
+      <div class="ts-line"></div>
+    </div>
+
+    <div class="stage">긴 침묵. B의 호흡 소리. 무언가를 끌어당기는 소리.</div>
+
+    <div class="line sp-1">
+      <span class="speaker">화자 A</span>
+      <span class="dialogue">(...혼잣말) ...결국 이렇게 되는구나.</span>
+    </div>
+
+    <div class="line sp-2 sp-injured">
+      <span class="speaker">화자 B</span>
+      <span class="dialogue">...처음부터 알고 있었잖아. 이렇게 될 거라는 거.</span>
+    </div>
+
+    <div class="line sp-1">
+      <span class="speaker">화자 A</span>
+      <span class="dialogue">그래도 시도는 해야 했으니까.</span>
+    </div>
+
+    <div class="line sp-2 sp-injured">
+      <span class="speaker">화자 B</span>
+      <span class="dialogue">...그 시도가 C와 F를 죽인 거야.</span>
+    </div>
+
+    <div class="stage">A가 대답하지 않는다.</div>
+
+    <div class="line sp-1">
+      <span class="speaker">화자 A</span>
+      <span class="dialogue">(...마이크를 끄지 않은 채) ...<span class="r">[REDACTED]</span>한테 연락해. 다른 방법을 찾아야 해. 우리끼리는 안 돼. 일반인들이... 일반인들 스스로 <span class="r">[REDACTED]</span>할 수 있는 무언가가 필요해.</span>
+    </div>
+
+    <div class="audio-corrupt">[ 음성 도중 절단 ]</div>
+
+    <div class="static-block">
+      ▓▓▓▓▓ END OF READABLE DATA ▓▓▓▓▓
+    </div>
+
+    <div class="transcript-note" style="margin-top: 30px; border-color: var(--redacted); opacity: 0.5;">
+      [POSTSCRIPT]<br>
+      회담 결과: <span style="color:var(--redacted);">결렬</span><br><br>
+      화자 A — 생존. 이후 행적 <span class="r">[REDACTED]</span><br>
+      화자 B — 중상. <span class="r">[REDACTED]</span> 시설에서 치료 후 <span class="r">[REDACTED]</span><br>
+      화자 C — <span style="color:var(--redacted);">회담 중 사망</span>. 사인: <span class="r">[REDACTED]</span><br>
+      화자 D — 생존. 이후 <span class="r">[REDACTED]</span> 전쟁을 개시<br>
+      화자 E — 생존. 이후 <span class="r">[REDACTED]</span> 지역 통치 선언<br>
+      화자 F — <span style="color:var(--redacted);">회담 중 사망</span>. B를 감싸다 <span class="r">[REDACTED]</span>에 피격<br><br>
+      본 회담 이후 <span class="r">[REDACTED]</span>일 뒤, 전면전 발발.<br>
+      본 녹화본은 <span class="r">[REDACTED]</span> 프로토콜에 의해 폐기 예정이었으나, 알 수 없는 경로로 유출됨.
+    </div>
+
+  </div>
+
+  <div class="tape-end">
+    <div class="end-text">■ END OF TAPE</div>
+    <div class="end-sub">TAPE-██-C // PLAYBACK COMPLETE // AUTO-REWIND...</div>
+  </div>
+
+</div>
+
+<script>
+let vhsSeconds = 0;
+const vhsTimeEl = document.getElementById('vhsTime');
+const tapeCounterEl = document.getElementById('tapeCounter');
+const progressFill = document.getElementById('progressFill');
+
+setInterval(() => {
+  vhsSeconds++;
+  const h = String(Math.floor(vhsSeconds / 3600)).padStart(2, '0');
+  const m = String(Math.floor((vhsSeconds % 3600) / 60)).padStart(2, '0');
+  const s = String(vhsSeconds % 60).padStart(2, '0');
+  vhsTimeEl.textContent = `${h}:${m}:${s}`;
+  tapeCounterEl.textContent = String(vhsSeconds * 3).padStart(4, '0');
+}, 1000);
+
+window.addEventListener('scroll', () => {
+  const p = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  progressFill.style.width = p + '%';
+  const ab = document.getElementById('aberration');
+  ab.style.opacity = '0.5';
+  clearTimeout(window._at);
+  window._at = setTimeout(() => { ab.style.opacity = '0'; }, 200);
+});
+
+const gf = document.getElementById('glitchFlash');
+function doGlitch() {
+  gf.style.opacity = '0.015';
+  setTimeout(() => { gf.style.opacity = '0'; }, 30 + Math.random() * 60);
+  setTimeout(doGlitch, 12000 + Math.random() * 30000);
+}
+setTimeout(doGlitch, 8000);
+
+window.addEventListener('scroll', () => {
+  const el = document.querySelector('.static-block-heavy');
+  if (el) {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      if (Math.random() > 0.85) {
+        gf.style.opacity = '0.04';
+        setTimeout(() => { gf.style.opacity = '0'; }, 20);
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
+
