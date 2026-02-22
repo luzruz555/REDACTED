@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[REDACTED] - ARCHIVE</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --bg-card: #0f0f0f;
+  --border: #1a1a1a;
+  --text: #8a8a8a;
+  --text-dim: #3a3a3a;
+  --text-bright: #c0c0c0;
+  --accent: #cc2200;
+  --accent-dim: #661100;
+  --redacted-bg: #111;
+  --glitch: #ff0000;
+  --warning: #aa3300;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+::selection { background: var(--accent); color: #000; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+  position: relative;
+}
+
+/* Scanline overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Vignette */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.6) 100%);
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* Top bar */
+.top-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 32px;
+  background: #050505;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  font-size: 10px;
+  color: var(--text-dim);
+  z-index: 100;
+  letter-spacing: 1px;
+}
+
+.top-bar .left { display: flex; gap: 24px; }
+.top-bar .access-count {
+  color: var(--accent);
+  animation: pulse-dim 3s ease-in-out infinite;
+}
+
+@keyframes pulse-dim {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.viewing-timer { color: var(--text-dim); }
+
+/* Header */
+.header {
+  margin-top: 32px;
+  padding: 80px 40px 60px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.header::after {
+  content: '경고: 본 문서는 기밀 등급 [REDACTED]에 해당합니다';
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  color: var(--accent-dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.header h1 {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: 16px;
+  margin-bottom: 12px;
+  position: relative;
+  display: inline-block;
+}
+
+.header h1 .bracket {
+  color: var(--accent);
+  font-weight: 300;
+}
+
+.header .subtitle {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+}
+
+.header .project-id {
+  margin-top: 20px;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+}
+
+/* Status bar */
+.status-bar {
+  padding: 12px 40px;
+  background: #070707;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.status-bar .protocol {
+  color: var(--warning);
+  animation: blink-slow 2.5s ease-in-out infinite;
+}
+
+@keyframes blink-slow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
+/* Main */
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px 120px;
+}
+
+/* Section title */
+.section-title {
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin: 50px 0 24px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Subject card */
+.subject-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.subject-card:hover {
+  border-color: #2a2a2a;
+}
+
+.subject-card.corrupted {
+  animation: corrupt-flicker 8s ease-in-out infinite;
+}
+
+@keyframes corrupt-flicker {
+  0%, 96%, 100% { opacity: 1; }
+  97% { opacity: 0.7; }
+  98% { opacity: 1; }
+  99% { opacity: 0.85; }
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.card-header:hover { background: #111; }
+
+.subject-number {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: 3px;
+}
+
+.subject-status {
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 3px 10px;
+  border: 1px solid;
+}
+
+.status-redacted {
+  color: var(--accent);
+  border-color: var(--accent-dim);
+}
+
+.status-corrupted {
+  color: #664400;
+  border-color: #332200;
+}
+
+.status-partial {
+  color: #446600;
+  border-color: #223300;
+}
+
+.status-accessible {
+  color: #888;
+  border-color: #444;
+}
+
+.card-body {
+  padding: 20px;
+  display: none;
+}
+
+.card-body.open { display: block; }
+
+.field {
+  margin-bottom: 14px;
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.field-label {
+  color: var(--text-dim);
+  min-width: 100px;
+  flex-shrink: 0;
+  letter-spacing: 1px;
+  font-size: 10px;
+  padding-top: 2px;
+}
+
+.field-value { color: var(--text); }
+
+/* Redacted text styles */
+.redacted {
+  background: var(--text-dim);
+  color: var(--text-dim);
+  padding: 0 4px;
+  user-select: none;
+  cursor: default;
+  position: relative;
+  letter-spacing: 0;
+}
+
+.redacted:hover {
+  background: #2a2a2a;
+  color: #2a2a2a;
+}
+
+.redacted-block {
+  display: block;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--text-dim) 0px,
+    var(--text-dim) 8px,
+    transparent 8px,
+    transparent 10px
+  );
+  height: 14px;
+  margin: 4px 0;
+  opacity: 0.4;
+}
+
+.corrupted-text {
+  color: var(--text-dim);
+  font-family: 'IBM Plex Mono', monospace;
+  word-break: break-all;
+  opacity: 0.5;
+  font-size: 11px;
+}
+
+.glitch-text {
+  position: relative;
+  display: inline;
+}
+
+.glitch-text::before {
+  content: attr(data-text);
+  position: absolute;
+  left: -1px;
+  top: 0;
+  color: var(--glitch);
+  opacity: 0;
+  clip-path: inset(0 0 0 0);
+}
+
+.glitch-text:hover::before {
+  animation: glitch-reveal 0.3s steps(3) forwards;
+}
+
+@keyframes glitch-reveal {
+  0% { opacity: 0; clip-path: inset(20% 0 60% 0); }
+  33% { opacity: 0.3; clip-path: inset(40% 0 20% 0); }
+  66% { opacity: 0.15; clip-path: inset(60% 0 10% 0); }
+  100% { opacity: 0; }
+}
+
+/* Experiment log */
+.experiment-log {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: #080808;
+  border-left: 2px solid var(--border);
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.experiment-log .log-date {
+  color: var(--text-dim);
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+
+.experiment-log .log-entry {
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.experiment-log .log-entry.redacted-entry {
+  color: var(--text-dim);
+}
+
+/* Warning overlay */
+.hover-warning {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(5,5,5,0.95);
+  border: 1px solid var(--accent-dim);
+  padding: 30px 50px;
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 3px;
+  text-align: center;
+  z-index: 200;
+  animation: warning-in 0.2s ease;
+}
+
+@keyframes warning-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.98); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.hover-warning .warning-sub {
+  font-size: 9px;
+  color: var(--text-dim);
+  margin-top: 10px;
+  letter-spacing: 2px;
+}
+
+/* Countdown */
+.countdown-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  background: #050505;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  font-size: 9px;
+  color: var(--text-dim);
+  z-index: 100;
+  letter-spacing: 1px;
+}
+
+.countdown-bar .countdown {
+  color: var(--accent-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown-bar .last-modified {
+  color: var(--text-dim);
+  animation: modified-pulse 5s ease-in-out infinite;
+}
+
+@keyframes modified-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+/* Admin notes */
+.admin-note {
+  font-size: 9px;
+  color: var(--text-dim);
+  opacity: 0.3;
+  margin: 8px 0;
+  font-style: italic;
+  letter-spacing: 1px;
+}
+
+.admin-note:hover { opacity: 0.6; }
+
+/* Hidden bold puzzle - looks like accidental formatting */
+.log-entry b, .admin-note b, .field-value b {
+  font-weight: 500;
+  color: var(--text-bright);
+  opacity: 0.85;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* Subject 6 special */
+.subject-6 {
+  border-color: var(--accent-dim);
+}
+
+.subject-6 .card-header {
+  border-bottom-color: var(--accent-dim);
+}
+
+.subject-6 .subject-number {
+  color: var(--accent);
+}
+
+/* Glitch effect on scroll */
+.glitch-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--glitch);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9997;
+  mix-blend-mode: multiply;
+}
+
+/* Footer note */
+.footer-note {
+  margin-top: 80px;
+  text-align: center;
+  font-size: 8px;
+  color: var(--text-dim);
+  opacity: 0.2;
+  letter-spacing: 3px;
+  line-height: 2;
+}
+
+/* Cursor trail (subtle) */
+.cursor-ghost {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9990;
+  border-radius: 50%;
+  transition: opacity 0.3s;
+}
+
+/* Screen dim effect */
+.screen-dim {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9996;
+  transition: opacity 30s linear;
+}
+
+/* Noise texture */
+.noise {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9995;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .header { padding: 60px 20px 50px; }
+  .header h1 { font-size: 28px; letter-spacing: 8px; }
+  .status-bar { flex-direction: column; gap: 4px; padding: 8px 20px; }
+  .field { flex-direction: column; gap: 4px; }
+  .field-label { min-width: auto; }
+}
+
+/* Hidden message in specific scroll position */
+.hidden-message {
+  position: fixed;
+  bottom: 40px;
+  right: 20px;
+  font-size: 7px;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity 2s;
+  letter-spacing: 2px;
+  z-index: 50;
+}
+
+.hidden-message.visible { opacity: 0.15; }
+</style>
+</head>
+<body>
+
+<!-- Overlays -->
+<div class="glitch-overlay" id="glitchOverlay"></div>
+<div class="screen-dim" id="screenDim"></div>
+<div class="noise"></div>
+<div class="cursor-ghost" id="cursorGhost"></div>
+<div class="hidden-message" id="hiddenMsg">누군가 이 기록을 찾고 있습니다</div>
+
+<!-- Top bar -->
+<div class="top-bar">
+  <div class="left">
+    <span>[REDACTED] ARCHIVE SYSTEM v2.██</span>
+    <span class="access-count" id="accessCount">현재 접속자: 2</span>
+  </div>
+  <div>
+    <span class="viewing-timer">열람 시간: <span id="viewTimer">00:00:00</span></span>
+  </div>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <h1><span class="bracket">[</span>REDACTED<span class="bracket">]</span></h1>
+  <div class="subtitle">SUBJECT EXPERIMENT ARCHIVE</div>
+  <div class="project-id">PROJECT ID: ████-██-██ &nbsp;│&nbsp; CLEARANCE: ██████ &nbsp;│&nbsp; STATUS: ARCHIVED</div>
+</div>
+
+<!-- Status bar -->
+<div class="status-bar">
+  <span>ARCHIVE INTEGRITY: 12.4% — 대부분의 기록이 손상되었거나 검열되었습니다</span>
+  <span class="protocol">[REDACTED] 프로토콜 대기 중 ...</span>
+</div>
+
+<!-- Main content -->
+<div class="main">
+
+  <div class="section-title">SUBJECT FILES — EXPERIMENT RECORDS</div>
+
+  <div class="admin-note">// 경고: 해당 기록의 열람은 ████ 규정 제 17조에 의거하여 제한됩니다.</div>
+
+  <!-- SUBJECT 01 -->
+  <div class="subject-card corrupted">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="subject-number">SUBJECT 01</span>
+      <span class="subject-status status-corrupted">DATA CORRUPTED</span>
+    </div>
+    <div class="card-body">
+      <div class="field">
+        <span class="field-label">성명</span>
+        <span class="field-value corrupted-text">e8a2b9f0c1d4e7██████0a3b8c2d</span>
+      </div>
+      <div class="field">
+        <span class="field-label">나이</span>
+        <span class="field-value"><span class="redacted">██████</span></span>
+      </div>
+      <div class="field">
+        <span class="field-label">성별</span>
+        <span class="field-value corrupted-text">ERR::NULL_REF</span>
+      </div>
+      <div class="field">
+        <span class="field-label">능력</span>
+        <span class="field-value">물질 붕괴 — 접촉한 대상의 분자 결합을 해체</span>
+      </div>
+      <div class="field">
+        <span class="field-label">이식 적합도</span>
+        <span class="field-value"><span class="redacted">██████</span></span>
+      </div>
+
+      <div class="experiment-log">
+        <div class="log-date">EXPERIMENT LOG — 2194.03.██</div>
+        <div class="log-entry">제1차 능력 이식 시도. 피험자의 세포 <span class="redacted">██████████</span> 반응 확인.</div>
+        <div class="log-entry redacted-entry"><span class="redacted">████████████████████████████████████████</span></div>
+        <div class="log-entry">능력 발현 확인. 접촉 대상 <span class="redacted">██████</span>. 통제 불가 판정. 현 상태를 <b>알</b> 수 없음.</div>
+        <div class="log-entry redacted-entry"><span class="redacted">██████████████████████████████████████████████████████████</span></div>
+      </div>
+      <div class="admin-note">// 01번 기록 대부분 물리적 손상. 복구 불가.</div>
+    </div>
+  </div>
+
+  <!-- SUBJECT 02 -->
+  <div class="subject-card corrupted">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="subject-number">SUBJECT 02</span>
+      <span class="subject-status status-redacted">REDACTED</span>
+    </div>
+    <div class="card-body">
+      <div class="field">
+        <span class="field-label">성명</span>
+        <span class="field-value"><span class="redacted">█████</span></span>
+      </div>
+      <div class="field">
+        <span class="field-label">나이</span>
+        <span class="field-value"><span class="redacted">██</span></span>
+      </div>
+      <div class="field">
+        <span class="field-label">성별</span>
+        <span class="field-value"><span class="redacted">██</span></span>
+      </div>
+      <div class="field">
+        <span class="field-label">능력</span>
+        <span class="field-value">인지 조작 — 대상의 기억 및 감각을 왜곡</span>
+      </div>
+      <div class="field">
+        <span class="field-label">이식 적합도</span>
+        <span class="field-value"><span class="redacted">██████</span></span>
+      </div>
+
+      <div class="experiment-log">
+        <div class="log-date">EXPERIMENT LOG — 2195.██.██</div>
+        <div class="log-entry redacted-entry"><span class="redacted">████████████████████████████████████████</span></div>
+        <div class="log-entry">피험자가 실험 도중 <span class="redacted">██████████</span>. 연구원 3명 <span class="redacted">████</span>. 시설 일부 <b>파</b>손.</div>
+        <div class="log-entry redacted-entry"><span class="redacted">████████████████████████████████████████████████</span></div>
+        <div class="log-entry">제12차 실험 이후 피험자의 <span class="redacted">██████</span> 완전히 <span class="redacted">████████</span>.</div>
+      </div>
+      <div class="admin-note">// 이 기록은 삭제 요청됨. 사유: [REDACTED]</div>
+    </div>
+  </div>
+
+  <!-- SUBJECT 03 -->
+  <div class="subject-card">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="subject-number">SUBJECT 03</span>
+      <span class="subject-status status-redacted">REDACTED</span>
+    </div>
+    <div class="card-body">
+      <div class="field">
+        <span class="field-label">성명</span>
+        <span class="field-value"><span class="redacted">█████</span></span>
+      </div>
+      <div class="field">
+        <span class="field-label">나이</span>
+        <span class="field-value"><span class="redacted">██</span></span>
+      </div>
+      <div class="field">
+        <span class="field-label">성별</span>
+        <span class="field-value"><span class="redacted">██</span></span>
+      </div>
+      <div class="field">
+        <span class="field-label">능력</span>
+        <span class="field-value">공간 절단 — <span class="glitch-text" data-text="3차원 공간을">3차원 공간을</span> 임의로 분리</span>
+      </div>
+      <div class="field">
+        <span class="field-label">이식 적합도</span>
+        <span class="field-value"><span class="redacted">██████</span></span>
+      </div>
+
+      <div class="experiment-log">
+        <div class="log-date">EXPERIMENT LOG — 2196.07.██</div>
+        <div class="log-entry">능력 이식 과정에서 피험자의 <span class="redacted">██████████</span>이 분리됨.</div>
+        <div class="log-entry"><span class="redacted">████████████████████████████████</span> 회복 불가 판정.</div>
+        <div class="log-entry redacted-entry"><span class="redacted">████████████████████████████████████████████████████████████████████████████████████</span></div>
+        <div class="log-entry">그럼에도 실험 속행. <span class="redacted">██████</span> 승인. 내부 코드 알파<b>벳</b> 순으로 재분류.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBJECT 04 -->
+  <div class="subject-card corrupted">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="subject-number">SUBJECT 04</span>
+      <span class="subject-status status-corrupted">DATA CORRUPTED</span>
+    </div>
+    <div class="card-body">
+      <div class="field">
+        <span class="field-label">성명</span>
+        <span class="field-value corrupted-text">0x4E554C4C_ERR_SEGFAULT_████</span>
+      </div>
+      <div class="field">
+        <span class="field-label">나이</span>
+        <span class="field-value corrupted-text">NaN</span>
+      </div>
+      <div class="field">
+        <span class="field-label">성별</span>
+        <span class="field-value corrupted-text">0xDEAD</span>
+      </div>
+      <div class="field">
+        <span class="field-label">능력</span>
+        <span class="field-value">에너지 흡수 — 모든 형태의 에너지를 체내에 축적 및 방출</span>
+      </div>
+      <div class="field">
+        <span class="field-label">이식 적합도</span>
+        <span class="field-value corrupted-text">ERR::OVERFLOW</span>
+      </div>
+
+      <div class="experiment-log">
+        <div class="log-date">EXPERIMENT LOG — ████.██.██</div>
+        <div class="log-entry corrupted-text">LOG_CORRUPTED::SECTOR_04_PHYSICAL_DAMAGE_DETECTED</div>
+        <div class="log-entry">유일하게 판독 가능한 기록: "피험자가 <span class="redacted">██████</span>. <b>십</b>여 분 이내에 시설 B동 전체 <span class="redacted">██████████</span>."</div>
+        <div class="log-entry corrupted-text">ff e8 00 00 00 00 5b 8d 4b ██ ██ ██ ba 01 00 00 00</div>
+      </div>
+      <div class="admin-note">// 04번 파일 접근 시 시스템 오류 빈발. 원인 불명.</div>
+    </div>
+  </div>
+
+  <!-- SUBJECT 05 -->
+  <div class="subject-card">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="subject-number">SUBJECT 05</span>
+      <span class="subject-status status-redacted">REDACTED</span>
+    </div>
+    <div class="card-body">
+      <div class="field">
+        <span class="field-label">성명</span>
+        <span class="field-value"><span class="redacted">██████</span></span>
+      </div>
+      <div class="field">
+        <span class="field-label">나이</span>
+        <span class="field-value"><span class="redacted">██</span></span>
+      </div>
+      <div class="field">
+        <span class="field-label">성별</span>
+        <span class="field-value"><span class="redacted">██</span></span>
+      </div>
+      <div class="field">
+        <span class="field-label">능력</span>
+        <span class="field-value">생체 지배 — 유기체의 신경계를 장악하여 조종</span>
+      </div>
+      <div class="field">
+        <span class="field-label">이식 적합도</span>
+        <span class="field-value"><span class="redacted">██████</span></span>
+      </div>
+
+      <div class="experiment-log">
+        <div class="log-date">EXPERIMENT LOG — 2197.11.██</div>
+        <div class="log-entry">능력 발현 직후 실험실 내 <b>구</b>역에 있던 <span class="redacted">██████</span> 전원이 <span class="redacted">████████████</span>.</div>
+        <div class="log-entry redacted-entry"><span class="redacted">██████████████████████████████████████████████████████████████</span></div>
+        <div class="log-entry">"제발 <span class="redacted">████████</span>" — 피험자 05의 마지막 기록된 발언.</div>
+        <div class="log-entry redacted-entry"><span class="redacted">████████████████████████████████████████████████████████</span></div>
+      </div>
+      <div class="admin-note">// 경고: 05번 피험자 파일 접근 시 상부 보고 필수</div>
+    </div>
+  </div>
+
+  <!-- SUBJECT 06 — ACCESSIBLE -->
+  <div class="subject-card subject-6">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="subject-number">SUBJECT 06</span>
+      <span class="subject-status status-accessible">PARTIAL ACCESS</span>
+    </div>
+    <div class="card-body">
+      <div class="field">
+        <span class="field-label">성명</span>
+        <span class="field-value">하<span class="redacted">████</span></span>
+      </div>
+      <div class="field">
+        <span class="field-label">나이</span>
+        <span class="field-value"><span class="redacted">██</span></span>
+      </div>
+      <div class="field">
+        <span class="field-label">성별</span>
+        <span class="field-value"><span class="redacted">██</span></span>
+      </div>
+      <div class="field">
+        <span class="field-label">능력</span>
+        <span class="field-value">수명 이동 — 대상의 남은 수명을 추출하여 자신 또는 타인에게 이전</span>
+      </div>
+      <div class="field">
+        <span class="field-label">이식 적합도</span>
+        <span class="field-value" style="color: #446600;">적합 — 유일한 안정적 이식 사례</span>
+      </div>
+
+      <div class="experiment-log">
+        <div class="log-date">EXPERIMENT LOG — 2198.02.14</div>
+        <div class="log-entry">제1차 이식 시도. 이전 피험자들과 달리 거부 반응 없음. 안정적 능력 발현 확인.</div>
+        <div class="log-entry">수명 추출 실험: 실험용 유기체 대상 <span class="redacted">██████</span>. 유기체의 잔여 수명이 피험자에게 이전됨을 확인.</div>
+        <div class="log-entry redacted-entry"><span class="redacted">████████████████████████████████████████████████████████████</span></div>
+        <div class="log-entry">제7차 실험. 인간 대상 <span class="redacted">██████████████████████████████</span>.</div>
+        <div class="log-entry redacted-entry"><span class="redacted">████████████████████████████████████████████████████████████████████████████████</span></div>
+        <div class="log-entry">피험자 06의 생체 나이가 이식 시점 대비 약 <b>십</b><span class="redacted">████</span> 역행한 것으로 측정됨.</div>
+        <div class="log-entry" style="color: var(--accent); opacity: 0.7;">비고: 본 피험자의 존재는 [REDACTED] 프로젝트의 <span class="redacted">██████████████</span>로 분류됨.</div>
+      </div>
+      <div class="admin-note">// 왜 아직도 이걸 보고 있지?</div>
+    </div>
+  </div>
+
+  <div class="admin-note" style="margin-top: 30px;">// 피험자 01~05: 최종 상태 — <span class="redacted">██████████████████</span></div>
+  <div class="admin-note">// 피험자 06: 최종 상태 — <span class="redacted">████████</span>. 현재 소재: <span class="redacted">██████████████</span></div>
+
+  <div class="section-title" style="margin-top: 60px;">ADDITIONAL RECORDS</div>
+
+  <div class="admin-note">// 추가 기록 3건 감지됨. 접근 권한 부족.</div>
+  <div class="admin-note">// ████ 박사의 개인 기록 — <span class="redacted">██████████████████████████████████████</span></div>
+  <div class="admin-note">// "그들은 무기가 아니었다. 우리가 무기로 만든 것이다." — <span class="redacted">████████</span>, 2199년 <b>팔</b>월</div>
+  <div class="admin-note">// 이 프로젝트의 결과물은 ████년 후 <span class="glitch-text" data-text="EDEN">████</span> 시스템의 기초가 되었다.</div>
+
+  <div class="footer-note">
+    END OF ACCESSIBLE RECORDS<br>
+    ARCHIVE STATUS: DETERIORATING<br>
+    <span id="footerExtra"></span>
+  </div>
+
+</div>
+
+<!-- Warning popup -->
+<div class="hover-warning" id="hoverWarning">
+  <div>정말 열람하시겠습니까?</div>
+  <div class="warning-sub">이 행동은 기록됩니다</div>
+</div>
+
+<!-- Countdown bar -->
+<div class="countdown-bar">
+  <span>ARCHIVE AUTO-PURGE: <span class="countdown" id="countdown">23:59:59</span></span>
+  <span class="last-modified" id="lastModified">마지막 수정: 3분 전</span>
+</div>
+
+<script>
+// ===============================
+// Viewing Timer
+// ===============================
+let seconds = 0;
+const timerEl = document.getElementById('viewTimer');
+
+setInterval(() => {
+  seconds++;
+  const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+  const s = String(seconds % 60).padStart(2, '0');
+  timerEl.textContent = `${h}:${m}:${s}`;
+}, 1000);
+
+// ===============================
+// Countdown (resets at 0, never actually purges)
+// ===============================
+let countdownSeconds = 86399;
+const countdownEl = document.getElementById('countdown');
+
+setInterval(() => {
+  countdownSeconds--;
+  if (countdownSeconds <= 0) countdownSeconds = 86399;
+  const h = String(Math.floor(countdownSeconds / 3600)).padStart(2, '0');
+  const m = String(Math.floor((countdownSeconds % 3600) / 60)).padStart(2, '0');
+  const s = String(countdownSeconds % 60).padStart(2, '0');
+  countdownEl.textContent = `${h}:${m}:${s}`;
+}, 1000);
+
+// ===============================
+// "Last modified" keeps updating
+// ===============================
+const lastModEl = document.getElementById('lastModified');
+let modMinutes = 3;
+
+setInterval(() => {
+  modMinutes = Math.max(1, modMinutes + (Math.random() > 0.7 ? -modMinutes + 1 : 1));
+  if (Math.random() > 0.85) modMinutes = 1;
+  lastModEl.textContent = `마지막 수정: ${modMinutes}분 전`;
+}, 15000);
+
+// ===============================
+// Access count flicker
+// ===============================
+const accessEl = document.getElementById('accessCount');
+setInterval(() => {
+  if (Math.random() > 0.92) {
+    const counts = [2, 2, 2, 3, 2, 1, 2];
+    const c = counts[Math.floor(Math.random() * counts.length)];
+    accessEl.textContent = `현재 접속자: ${c}`;
+    setTimeout(() => {
+      accessEl.textContent = '현재 접속자: 2';
+    }, 800 + Math.random() * 2000);
+  }
+}, 5000);
+
+// ===============================
+// Toggle cards
+// ===============================
+function toggleCard(header) {
+  const body = header.nextElementSibling;
+  const isOpening = !body.classList.contains('open');
+
+  // Show warning briefly on first open
+  if (isOpening && !header.dataset.opened) {
+    header.dataset.opened = 'true';
+    const warning = document.getElementById('hoverWarning');
+    warning.style.display = 'block';
+    setTimeout(() => {
+      warning.style.display = 'none';
+      body.classList.add('open');
+    }, 1200);
+    return;
+  }
+
+  body.classList.toggle('open');
+}
+
+// ===============================
+// Screen dim over time
+// ===============================
+const screenDim = document.getElementById('screenDim');
+setTimeout(() => {
+  screenDim.style.opacity = '0.15';
+}, 60000);
+
+// ===============================
+// Random glitch flash
+// ===============================
+const glitchOverlay = document.getElementById('glitchOverlay');
+
+function triggerGlitch() {
+  glitchOverlay.style.opacity = '0.03';
+  setTimeout(() => {
+    glitchOverlay.style.opacity = '0';
+  }, 50 + Math.random() * 100);
+
+  setTimeout(triggerGlitch, 15000 + Math.random() * 45000);
+}
+setTimeout(triggerGlitch, 20000);
+
+// ===============================
+// Hidden message on scroll
+// ===============================
+const hiddenMsg = document.getElementById('hiddenMsg');
+const messages = [
+  '누군가 이 기록을 찾고 있습니다',
+  '열람이 기록되었습니다',
+  '06번은 아직 살아있습니다',
+  '당신은 몇 번째 접속자입니까',
+  '이 아카이브는 폐기되었어야 합니다',
+];
+
+window.addEventListener('scroll', () => {
+  const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  if (scrollPercent > 0.7) {
+    hiddenMsg.classList.add('visible');
+    hiddenMsg.textContent = messages[Math.floor(Math.random() * messages.length)];
+  } else {
+    hiddenMsg.classList.remove('visible');
+  }
+});
+
+// ===============================
+// Subtle cursor unease
+// ===============================
+const cursorGhost = document.getElementById('cursorGhost');
+let cursorTimeout;
+
+document.addEventListener('mousemove', (e) => {
+  clearTimeout(cursorTimeout);
+  cursorTimeout = setTimeout(() => {
+    // After 5s of no movement, show ghost cursor briefly
+    cursorGhost.style.left = (e.clientX + 15) + 'px';
+    cursorGhost.style.top = (e.clientY + 15) + 'px';
+    cursorGhost.style.opacity = '0.2';
+    setTimeout(() => {
+      cursorGhost.style.opacity = '0';
+    }, 1500);
+  }, 5000);
+});
+
+// ===============================
+// Footer changes on revisit
+// ===============================
+const footerExtra = document.getElementById('footerExtra');
+const visitCount = parseInt(localStorage.getItem('redacted_visits') || '0') + 1;
+localStorage.setItem('redacted_visits', visitCount);
+
+if (visitCount > 1) {
+  footerExtra.textContent = `접속 기록: ${visitCount}회`;
+  footerExtra.style.color = 'var(--accent-dim)';
+}
+
+if (visitCount > 3) {
+  footerExtra.textContent = `경고: 반복 접속 감지 (${visitCount}회)`;
+}
+
+// ===============================
+// Page visibility - "someone noticed"
+// ===============================
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    if (Math.random() > 0.6) {
+      lastModEl.textContent = '마지막 수정: 방금';
+      setTimeout(() => {
+        lastModEl.textContent = '마지막 수정: 1분 전';
+      }, 5000);
+    }
+  }
+});
+</script>
+
+</body>
+</html>
