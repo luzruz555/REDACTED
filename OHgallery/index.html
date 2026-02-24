@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OH 갤러리 - Only Human</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=VT323&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f5;
+  --white: #ffffff;
+  --header-bg: #2b3a6b;
+  --header-dark: #1e2a52;
+  --blue: #3b4890;
+  --border: #ccc;
+  --border-light: #e3e3e3;
+  --text: #333;
+  --text-sub: #666;
+  --text-dim: #999;
+  --hot: #e02020;
+  --hot-bg: #fff8f8;
+  --notice-bg: #f0f4ff;
+  --rec: #3b82c4;
+  --norec: #999;
+  --row-hover: #f9f9ff;
+  --tag-notice: #d04040;
+  --tag-general: #666;
+  --tag-news: #3b4890;
+  --tag-testimony: #c44a2f;
+  --tag-discuss: #2a7a3a;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+/* HEADER */
+.header { background: var(--header-bg); border-bottom: 2px solid var(--header-dark); }
+.header-top {
+  max-width: 1000px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center; padding: 8px 12px;
+}
+.header-logo { display: flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; }
+.logo-box {
+  background: #fff; color: var(--header-bg);
+  font-weight: 700; font-size: 16px; padding: 2px 8px; border-radius: 3px; letter-spacing: 1px;
+}
+.logo-sub { font-size: 11px; color: rgba(255,255,255,0.6); }
+.header-right { display: flex; gap: 12px; font-size: 11px; color: rgba(255,255,255,0.5); }
+.header-right span { cursor: pointer; }
+.header-right span:hover { color: rgba(255,255,255,0.8); }
+/* Gallery header */
+.gall-header {
+  max-width: 1000px; margin: 12px auto 0; background: var(--white);
+  border: 1px solid var(--border); border-top: 2px solid var(--blue);
+  padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
+}
+.gall-name { font-size: 18px; font-weight: 700; }
+.gall-name-en { font-size: 12px; color: var(--text-dim); margin-left: 8px; }
+.gall-info { font-size: 11px; color: var(--text-dim); }
+.gall-notice-banner {
+  max-width: 1000px; margin: 8px auto 0; background: #fff9e6;
+  border: 1px solid #e8d88a; padding: 8px 16px; font-size: 12px; color: #8a7a40; line-height: 1.6;
+}
+.gall-notice-banner b { color: #6a5a20; }
+/* Tabs */
+.tab-bar {
+  max-width: 1000px; margin: 8px auto 0;
+  display: flex; gap: 0; border-bottom: 1px solid var(--border);
+}
+.tab-item {
+  padding: 8px 16px; font-size: 12px; color: var(--text-sub); cursor: pointer;
+  border: 1px solid transparent; border-bottom: none; margin-bottom: -1px; background: var(--bg);
+}
+.tab-item:hover { color: var(--text); }
+.tab-item.active {
+  background: var(--white); color: var(--blue); font-weight: 500;
+  border: 1px solid var(--border); border-bottom: 1px solid var(--white);
+}
+/* TABLE */
+.board-wrap { max-width: 1000px; margin: 0 auto; }
+.board-table {
+  width: 100%; border-collapse: collapse;
+  background: var(--white); border: 1px solid var(--border); border-top: none;
+}
+.board-table th {
+  background: #f8f8f8; border-bottom: 1px solid var(--border);
+  padding: 7px 8px; font-size: 11px; font-weight: 500; color: var(--text-sub); text-align: center;
+}
+.board-table td {
+  padding: 6px 8px; border-bottom: 1px solid var(--border-light);
+  font-size: 13px; vertical-align: middle;
+}
+.col-num { width: 50px; text-align: center; color: var(--text-dim); font-size: 12px; }
+.col-tag { width: 55px; text-align: center; }
+.col-title { text-align: left; }
+.col-author { width: 100px; text-align: center; font-size: 12px; }
+.col-date { width: 65px; text-align: center; font-size: 11px; color: var(--text-dim); }
+.col-views { width: 55px; text-align: center; font-size: 12px; color: var(--text-dim); }
+.col-rec { width: 45px; text-align: center; font-size: 12px; }
+.board-row { cursor: pointer; transition: background 0.05s; }
+.board-row:hover { background: var(--row-hover); }
+.board-row.notice-row { background: var(--notice-bg); }
+.board-row.notice-row:hover { background: #e6eaff; }
+.board-row.hot-row { background: var(--hot-bg); }
+.board-row.hot-row:hover { background: #fff0f0; }
+.board-row.concept-row .col-rec { color: var(--blue); font-weight: 700; }
+.board-row.deleted-row { background: #f8f4f4; opacity: 0.6; cursor: default; }
+.tag { font-size: 11px; font-weight: 500; }
+.t-notice { color: var(--tag-notice); }
+.t-general { color: var(--tag-general); }
+.t-news { color: var(--tag-news); }
+.t-testimony { color: var(--tag-testimony); }
+.t-discuss { color: var(--tag-discuss); }
+.title-text { color: var(--text); }
+.title-text b { font-weight: 500; }
+.comment-cnt { font-size: 11px; color: var(--hot); font-weight: 700; margin-left: 4px; }
+.concept-icon {
+  display: inline-block; width: 14px; height: 14px; background: var(--blue);
+  color: #fff; font-size: 9px; font-weight: 700; text-align: center;
+  line-height: 14px; border-radius: 2px; margin-right: 3px; vertical-align: middle;
+}
+.hot-icon {
+  display: inline-block; background: var(--hot); color: #fff;
+  font-size: 9px; font-weight: 700; padding: 1px 4px; border-radius: 2px;
+  margin-right: 3px; vertical-align: middle;
+}
+.author-ip { font-size: 10px; color: var(--text-dim); }
+.rec-up { color: var(--rec); }
+.rec-down { color: var(--norec); }
+/* DETAIL */
+.post-detail-wrap { display: none; background: var(--white); }
+.post-detail-wrap.open { display: table-row; }
+.post-detail-inner { padding: 16px 20px; }
+.pd-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.pd-info { display: flex; gap: 14px; font-size: 11px; color: var(--text-dim); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-light); }
+.post-body { font-size: 13px; line-height: 1.85; white-space: pre-wrap; padding: 8px 0 14px; border-bottom: 1px solid var(--border-light); }
+.vote-bar { display: flex; justify-content: center; gap: 20px; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+.vote-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; }
+.v-icon {
+  width: 34px; height: 34px; border: 1px solid var(--border); border-radius: 4px;
+  display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;
+}
+.vote-btn.up .v-icon { color: var(--rec); }
+.vote-btn.down .v-icon { color: var(--norec); }
+.v-count { font-weight: 500; }
+.comments-section { padding: 8px 0 0; }
+.comments-header { font-size: 12px; font-weight: 500; color: var(--text-sub); margin-bottom: 6px; padding-bottom: 5px; border-bottom: 1px solid var(--border-light); }
+.cmt { padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+.cmt:last-child { border-bottom: none; }
+.cmt-top { display: flex; justify-content: space-between; margin-bottom: 2px; }
+.cmt-author { font-size: 12px; font-weight: 500; color: var(--text-sub); }
+.cmt-author.op { color: var(--blue); }
+.cmt-author.admin { color: var(--hot); }
+.cmt-ip { font-weight: 300; font-size: 10px; color: var(--text-dim); }
+.cmt-date { font-size: 10px; color: var(--text-dim); }
+.cmt-vote { margin-top: 2px; font-size: 11px; color: var(--text-dim); }
+.cv-up { color: var(--rec); }
+.cv-down { color: var(--norec); }
+/* Footer */
+.board-footer { max-width: 1000px; margin: 0 auto; padding: 8px 0; display: flex; justify-content: center; }
+.page-nav { display: flex; gap: 2px; }
+.pg {
+  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--text-sub); border: 1px solid var(--border-light); background: var(--white);
+}
+.pg.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+.pg.disabled { color: var(--text-dim); background: #fafafa; }
+.site-footer {
+  max-width: 1000px; margin: 20px auto 40px; text-align: center;
+  font-size: 10px; color: var(--text-dim); line-height: 1.8;
+}
+.footer-warn { color: var(--hot); opacity: 0.4; font-size: 9px; margin-top: 4px; }
+/* LOGIN MODAL */
+.login-overlay {
+  display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); z-index: 9000;
+  align-items: center; justify-content: center;
+}
+.login-overlay.show { display: flex; }
+.login-box {
+  background: var(--white); border: 1px solid var(--border);
+  border-top: 3px solid var(--blue); padding: 30px; width: 340px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.login-box h3 { font-size: 15px; margin-bottom: 16px; color: var(--text); }
+.login-box input {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border);
+  font-size: 13px; font-family: inherit; margin-bottom: 10px; outline: none;
+}
+.login-box input:focus { border-color: var(--blue); }
+.login-box .login-btn {
+  width: 100%; padding: 9px; background: var(--blue); color: #fff;
+  border: none; font-size: 13px; font-weight: 500; cursor: pointer;
+  font-family: inherit;
+}
+.login-box .login-btn:hover { background: #2d3a78; }
+.login-box .login-err { font-size: 11px; color: var(--hot); margin-top: 8px; display: none; }
+.login-box .login-close {
+  position: absolute; top: 8px; right: 12px; font-size: 18px; color: var(--text-dim);
+  cursor: pointer; background: none; border: none;
+}
+.login-box { position: relative; }
+/* GLITCH TRANSITION */
+.glitch-screen {
+  display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: #000; z-index: 10000;
+  flex-direction: column; align-items: center; justify-content: center;
+}
+.glitch-screen.active { display: flex; }
+.glitch-scanlines {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(255,255,255,0.03) 1px, rgba(255,255,255,0.03) 3px);
+  pointer-events: none;
+}
+.glitch-noise {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  opacity: 0; pointer-events: none;
+}
+.glitch-text {
+  font-family: 'VT323', monospace; color: #c44a2f;
+  font-size: 28px; letter-spacing: 6px; z-index: 1;
+  opacity: 0; animation: glitch-appear 0.5s 0.8s forwards;
+}
+@keyframes glitch-appear {
+  0% { opacity: 0; transform: translateX(-10px); }
+  20% { opacity: 1; transform: translateX(5px); }
+  40% { opacity: 0.5; transform: translateX(-3px); }
+  60% { opacity: 1; transform: translateX(2px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.glitch-sub {
+  font-family: 'IBM Plex Mono', monospace; color: #4a4538;
+  font-size: 11px; letter-spacing: 2px; z-index: 1;
+  opacity: 0; animation: glitch-sub-appear 0.3s 1.8s forwards;
+}
+@keyframes glitch-sub-appear { to { opacity: 0.6; } }
+/* HIDDEN CONTENT */
+.hidden-content {
+  display: none; background: #0a0908; color: #b8b0a0;
+  font-family: 'IBM Plex Mono', monospace; min-height: 100vh;
+}
+.hidden-content.show { display: block; }
+.community-content { }
+.community-content.hide { display: none; }
+/* Hidden content styling */
+.hc-container { max-width: 800px; margin: 0 auto; padding: 40px 24px 80px; }
+.hc-header {
+  text-align: center; padding: 40px 0 30px;
+  border-bottom: 1px solid #1e1c18; margin-bottom: 40px;
+}
+.hc-classification {
+  font-size: 10px; color: #c44a2f; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px;
+}
+.hc-title {
+  font-family: 'VT323', monospace; font-size: 28px; color: #d4cbb8;
+  letter-spacing: 5px; margin-bottom: 6px;
+}
+.hc-subtitle { font-size: 11px; color: #4a4538; letter-spacing: 2px; line-height: 2; }
+/* Sections */
+.hc-section { margin-bottom: 50px; }
+.hc-section-title {
+  font-family: 'VT323', monospace; font-size: 18px; color: #d4cbb8;
+  letter-spacing: 3px; margin-bottom: 16px;
+  padding-bottom: 8px; border-bottom: 1px solid #1e1c18;
+}
+.hc-section-title .sec-num { color: #c44a2f; }
+/* Interview lines */
+.iv-meta {
+  font-size: 10px; color: #4a4538; letter-spacing: 2px;
+  margin-bottom: 20px; padding: 10px 14px;
+  border: 1px solid #1e1c18; background: #0d0c0a; line-height: 1.8;
+}
+.iv-ts {
+  font-family: 'VT323', monospace; font-size: 13px; color: #7a9c5a;
+  letter-spacing: 2px; margin: 24px 0 12px;
+}
+.iv-line {
+  margin-bottom: 14px; font-size: 12px; line-height: 1.85;
+  padding-left: 14px; border-left: 2px solid #1e1c18;
+}
+.iv-line .iv-speaker {
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 2px; display: block;
+}
+.sp-interviewer .iv-speaker { color: #6a8aaa; }
+.sp-interviewer { border-left-color: #6a8aaa; }
+.sp-06 .iv-speaker { color: #c44a2f; }
+.sp-06 { border-left-color: #c44a2f; }
+.iv-line .iv-text { color: #b8b0a0; }
+.iv-stage {
+  font-size: 11px; color: #4a4538; font-style: italic;
+  margin: 10px 0; padding: 6px 14px; border-left: 2px solid #1e1c18; opacity: 0.7;
+}
+.iv-redacted {
+  color: #c44a2f; font-weight: 500; letter-spacing: 1px; font-size: 11px;
+}
+.iv-corrupt {
+  font-size: 10px; color: #4a4538; letter-spacing: 3px; margin: 6px 0; opacity: 0.4;
+}
+.iv-static {
+  margin: 16px 0; padding: 10px 14px;
+  background: repeating-linear-gradient(0deg, #1a1814 0px, #1a1814 2px, transparent 2px, transparent 4px);
+  font-family: 'VT323', monospace; font-size: 13px; color: #4a4538;
+  letter-spacing: 3px; text-align: center; opacity: 0.5;
+}
+/* Escape report */
+.report-box {
+  background: #0d0c0a; border: 1px solid #1e1c18;
+  padding: 16px 20px; font-size: 12px; line-height: 1.9;
+  margin-bottom: 16px;
+}
+.report-box .report-label {
+  font-size: 10px; color: #c44a2f; letter-spacing: 2px; margin-bottom: 8px;
+}
+.report-box .report-content { color: #b8b0a0; white-space: pre-wrap; }
+/* News article */
+.news-box {
+  background: #12110e; border: 1px solid #2a2820;
+  padding: 20px 24px; margin-bottom: 16px;
+}
+.news-box .news-source {
+  font-size: 10px; color: #4a4538; letter-spacing: 2px; margin-bottom: 8px;
+}
+.news-box .news-title {
+  font-size: 16px; color: #d4cbb8; font-weight: 500; margin-bottom: 12px; line-height: 1.4;
+}
+.news-box .news-body {
+  font-size: 12px; color: #b8b0a0; line-height: 1.9; white-space: pre-wrap;
+}
+/* Hidden scanlines */
+.hidden-content::before {
+  content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,0,0,0.1) 1px, rgba(0,0,0,0.1) 3px);
+  pointer-events: none; z-index: 999;
+}
+.hc-footer {
+  text-align: center; padding: 30px 0; margin-top: 40px;
+  border-top: 1px solid #1e1c18;
+  font-size: 9px; color: #4a4538; letter-spacing: 2px;
+}
+.hc-footer .warn { color: #c44a2f; opacity: 0.4; margin-top: 6px; }
+/* Mobile */
+@media (max-width: 768px) {
+  .col-num, .col-views, .col-date { display: none; }
+  .col-tag { width: 45px; }
+  .col-author { width: 70px; }
+  .col-rec { width: 38px; }
+  .gall-header { margin-top: 0; }
+  .author-ip { display: none; }
+  .login-box { width: 90%; }
+  .hc-container { padding: 20px 14px 60px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== -->
+<!-- GLITCH TRANSITION    -->
+<!-- ==================== -->
+<div class="glitch-screen" id="glitchScreen">
+  <div class="glitch-scanlines"></div>
+  <div class="glitch-noise" id="glitchNoise"></div>
+  <div class="glitch-text" id="glitchText">ACCESS GRANTED</div>
+  <div class="glitch-sub" id="glitchSub">LOADING CLASSIFIED DATA...</div>
+</div>
+
+<!-- ==================== -->
+<!-- LOGIN MODAL          -->
+<!-- ==================== -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <button class="login-close" onclick="closeLogin()">&times;</button>
+    <h3>OH 갤러리 로그인</h3>
+    <input type="text" id="loginId" placeholder="아이디" autocomplete="off">
+    <input type="password" id="loginPw" placeholder="비밀번호" autocomplete="off">
+    <button class="login-btn" onclick="tryLogin()">로그인</button>
+    <div class="login-err" id="loginErr">아이디 또는 비밀번호가 일치하지 않습니다.</div>
+  </div>
+</div>
+
+<!-- ==================== -->
+<!-- COMMUNITY CONTENT    -->
+<!-- ==================== -->
+<div class="community-content" id="communityContent">
+
+<div class="header">
+  <div class="header-top">
+    <a class="header-logo" href="#">
+      <div class="logo-box">OH</div>
+      <span class="logo-sub">Only Human</span>
+    </a>
+    <div class="header-right">
+      <span onclick="openLogin()">로그인</span>
+      <span>회원가입</span>
+      <span>인증하기</span>
+    </div>
+  </div>
+</div>
+
+<div class="gall-header">
+  <div>
+    <span class="gall-name">OH 갤러리</span>
+    <span class="gall-name-en">(Only Human Gallery)</span>
+  </div>
+  <div class="gall-info">현재 접속자 <b>2,847</b>&nbsp;│&nbsp;총 게시물 <b>154,302</b></div>
+</div>
+
+<div class="gall-notice-banner">
+  <b>📢 필독:</b> 본 갤러리는 능력자 인증 불가자(일반인)만 이용 가능합니다. 생체 인증 미완료 시 24시간 내 자동 탈퇴됩니다. <b style="color:#c44a2f;">능력자 잠입 적발 시 IP 영구차단.</b>
+</div>
+
+<div class="tab-bar">
+  <div class="tab-item active">전체</div>
+  <div class="tab-item">피해 제보</div>
+  <div class="tab-item">뉴스/정보</div>
+  <div class="tab-item">자유</div>
+  <div class="tab-item">토론</div>
+  <div class="tab-item">개념글</div>
+</div>
+
+<div class="board-wrap">
+<table class="board-table">
+<thead><tr>
+  <th class="col-num">번호</th><th class="col-tag">말머리</th><th class="col-title">제목</th>
+  <th class="col-author">글쓴이</th><th class="col-date">날짜</th><th class="col-views">조회</th><th class="col-rec">추천</th>
+</tr></thead>
+<tbody>
+
+<!-- ===== 공지1 ===== -->
+<tr class="board-row notice-row" onclick="toggleDetail('p1')">
+  <td class="col-num">공지</td><td class="col-tag"><span class="tag t-notice">공지</span></td>
+  <td class="col-title"><span class="title-text"><b>[필독] OH 갤러리 가입 인증 절차 변경 안내</b></span><span class="comment-cnt">[47]</span></td>
+  <td class="col-author">운영자</td><td class="col-date">04.02</td><td class="col-views">8,492</td><td class="col-rec"><span class="rec-up">312</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p1"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">[필독] OH 갤러리 가입 인증 절차 변경 안내</div>
+  <div class="pd-info"><span>운영자</span><span>2189.04.02 09:12</span><span>조회 8,492</span><span>추천 312</span></div>
+  <div class="post-body">최근 능력자가 일반인으로 위장하여 커뮤니티에 침투하는 사례가 다수 확인되었습니다.
+
+이에 따라 가입 인증 절차를 다음과 같이 변경합니다:
+
+1. 기존 신분증 인증 → 생체 스캔 인증으로 전환
+2. 능력자 감별 키트를 통한 음성 결과 제출 필수
+3. 기존 회원도 30일 이내 재인증 필요
+
+인증에 실패하거나 거부하는 경우 자동 탈퇴 처리됩니다.
+우리의 안전은 우리가 지킵니다.</div>
+  <div class="vote-bar"><div class="vote-btn up"><div class="v-icon">▲</div><span class="v-count">312</span></div><div class="vote-btn down"><div class="v-icon">▼</div><span class="v-count">4</span></div></div>
+  <div class="comments-section"><div class="comments-header">댓글 47개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(118.235)</span></span><span class="cmt-date">04.02 09:34</span></div><div class="cmt-body">진짜 무섭다... 여기까지 들어올 생각을 하다니</div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(223.131)</span></span><span class="cmt-date">04.02 10:02</span></div><div class="cmt-body">어떤 놈이 들어와서 개인정보 수집했다는 소문 있던데 사실임?</div><div class="cmt-vote"><span class="cv-up">▲ 89</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author admin">운영자</span><span class="cmt-date">04.02 10:15</span></div><div class="cmt-body">확인된 사안입니다. 해당 계정은 즉시 차단 및 IP 추적 조치했습니다.</div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글2: 피해 HOT ===== -->
+<tr class="board-row hot-row concept-row" onclick="toggleDetail('p2')">
+  <td class="col-num">48201</td><td class="col-tag"><span class="tag t-testimony">피해</span></td>
+  <td class="col-title"><span class="hot-icon">HOT</span><span class="concept-icon">개</span><span class="title-text"><b>우리 동네가 하루아침에 사라졌습니다</b></span><span class="comment-cnt">[234]</span></td>
+  <td class="col-author">ㅇㅇ <span class="author-ip">(112.167)</span></td><td class="col-date">04.01</td><td class="col-views">34,201</td><td class="col-rec"><span class="rec-up">1847</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p2"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">우리 동네가 하루아침에 사라졌습니다</div>
+  <div class="pd-info"><span>ㅇㅇ (112.167)</span><span>2189.04.01 23:41</span><span>조회 34,201</span><span>추천 1,847</span></div>
+  <div class="post-body">3월 28일, 평택.
+
+능력자 두 명이 싸우다가 우리 아파트 단지 전체가 날아갔습니다. 저는 그날 야근이라 회사에 있었어요. 그게 아니었으면 저도 죽었겠죠.
+
+집에 있던 아내와 딸은...
+
+경찰에 신고해도 "능력자 관할이 아니라서"라는 답변만 돌아옵니다. 보상도, 사과도 없습니다. 그 능력자 두 명은 지금도 멀쩡히 살아있습니다.
+
+우리가 뭘 잘못했습니까. 우리는 그냥 집에서 밥 먹고 TV 보고 있었을 뿐입니다.
+
+이 글이라도 남겨야 기록이 되니까 씁니다. 제발 잊지 마세요.</div>
+  <div class="vote-bar"><div class="vote-btn up"><div class="v-icon">▲</div><span class="v-count">1847</span></div><div class="vote-btn down"><div class="v-icon">▼</div><span class="v-count">12</span></div></div>
+  <div class="comments-section"><div class="comments-header">댓글 234개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(49.142)</span></span><span class="cmt-date">04.01 23:55</span></div><div class="cmt-body">형... 진짜 미안하다. 우리가 할 수 있는 게 이것밖에 없어서 더 화가 나</div><div class="cmt-vote"><span class="cv-up">▲ 445</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(211.234)</span></span><span class="cmt-date">04.02 00:03</span></div><div class="cmt-body">능력자 전원 격리시켜야 합니다. 인간이 아닙니다 걔들은.</div><div class="cmt-vote"><span class="cv-up">▲ 302</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(175.209)</span></span><span class="cmt-date">04.02 00:17</span></div><div class="cmt-body">근데 능력자 중에도 싸우지 않는 애들 있지 않나... 전부 다 그런 건 아닌데</div><div class="cmt-vote"><span class="cv-up">▲ 23</span> <span class="cv-down">▼ 187</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(112.170)</span></span><span class="cmt-date">04.02 00:31</span></div><div class="cmt-body">저도 평택입니다. 이웃집 할머니가 무너진 건물에 깔려서... 3일 동안 소리 지르시다가 돌아가셨어요.</div><div class="cmt-vote"><span class="cv-up">▲ 890</span></div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글3: 혐오 ===== -->
+<tr class="board-row concept-row" onclick="toggleDetail('p3')">
+  <td class="col-num">48356</td><td class="col-tag"><span class="tag t-general">자유</span></td>
+  <td class="col-title"><span class="concept-icon">개</span><span class="title-text"><b>능력자 ≠ 인간. 과학적 근거 정리해봤습니다</b></span><span class="comment-cnt">[156]</span></td>
+  <td class="col-author">인간수호전선</td><td class="col-date">04.03</td><td class="col-views">12,890</td><td class="col-rec"><span class="rec-up">723</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p3"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">능력자 ≠ 인간. 과학적 근거 정리해봤습니다</div>
+  <div class="pd-info"><span>인간수호전선</span><span>2189.04.03 14:22</span><span>조회 12,890</span></div>
+  <div class="post-body">최근 유전자 분석 결과에 따르면 능력자의 DNA에는 일반인과 확연히 다른 변이가 존재합니다.
+
+1. 뇌 구조가 다름 → 공감 능력 결여 가능성
+2. 호르몬 분비 패턴이 비정상 → 폭력 성향 증가
+3. 유전적으로 격세유전 가능 → 옆집 아이가 능력자일 수 있음
+
+결론: 이들은 인간의 탈을 쓴 무기입니다. 공존은 불가능합니다.
+
+(출처: ████ 연구소 유출 자료, 원본 링크는 DM으로)</div>
+  <div class="vote-bar"><div class="vote-btn up"><div class="v-icon">▲</div><span class="v-count">723</span></div><div class="vote-btn down"><div class="v-icon">▼</div><span class="v-count">88</span></div></div>
+  <div class="comments-section"><div class="comments-header">댓글 156개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(203.234)</span></span><span class="cmt-date">04.03 14:35</span></div><div class="cmt-body">이거 출처 불명의 가짜 논문인데... 1번은 완전 허위고 2번도 근거 없음</div><div class="cmt-vote"><span class="cv-up">▲ 34</span> <span class="cv-down">▼ 201</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(58.120)</span></span><span class="cmt-date">04.03 14:41</span></div><div class="cmt-body">아 학자 코스프레 ㅋㅋ 능력자 편드는 거 보니까 잠입한 거 아님?</div><div class="cmt-vote"><span class="cv-up">▲ 389</span></div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글4: 착한 능력자 ===== -->
+<tr class="board-row" onclick="toggleDetail('p4')">
+  <td class="col-num">48410</td><td class="col-tag"><span class="tag t-discuss">토론</span></td>
+  <td class="col-title"><span class="title-text">솔직히 옆집 능력자 아저씨는 좋은 사람인데...</span><span class="comment-cnt">[89]</span></td>
+  <td class="col-author">ㅇㅇ <span class="author-ip">(121.165)</span></td><td class="col-date">04.04</td><td class="col-views">5,230</td><td class="col-rec"><span class="rec-down">-533</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p4"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">솔직히 옆집 능력자 아저씨는 좋은 사람인데...</div>
+  <div class="pd-info"><span>ㅇㅇ (121.165)</span><span>2189.04.04 11:08</span><span style="color:var(--norec);">비추 567</span></div>
+  <div class="post-body">제가 어릴 때부터 살던 동네에 능력자 아저씨가 한 분 계시는데, 진짜 조용하고 착한 분이에요. 동네 아이들 학원 태워주시고, 눈 오면 골목 치워주시고. 능력은 있지만 한 번도 쓰신 적 없대요.
+
+전부 다 나쁜 건 아니지 않을까요? 그냥... 사람이잖아요 결국.</div>
+  <div class="vote-bar"><div class="vote-btn up"><div class="v-icon">▲</div><span class="v-count">34</span></div><div class="vote-btn down"><div class="v-icon">▼</div><span class="v-count">567</span></div></div>
+  <div class="comments-section"><div class="comments-header">댓글 89개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(211.234)</span></span><span class="cmt-date">04.04 11:12</span></div><div class="cmt-body">그 아저씨가 내일 폭주하면? 착한 건 지금이야.</div><div class="cmt-vote"><span class="cv-up">▲ 234</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(112.170)</span></span><span class="cmt-date">04.04 11:20</span></div><div class="cmt-body">우리 동네 날린 능력자도 평소엔 "조용한 사람"이었어요.</div><div class="cmt-vote"><span class="cv-up">▲ 512</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author op">ㅇㅇ <span class="cmt-ip">(121.165)</span></span><span class="cmt-date">04.04 11:34</span></div><div class="cmt-body">저는 옹호가 아니라 그냥 사실을 말한 건데...</div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글5: 가짜뉴스 HOT ===== -->
+<tr class="board-row hot-row concept-row" onclick="toggleDetail('p5')">
+  <td class="col-num">48523</td><td class="col-tag"><span class="tag t-news">뉴스</span></td>
+  <td class="col-title"><span class="hot-icon">HOT</span><span class="concept-icon">개</span><span class="title-text"><b>[단독] 정부, 능력자와 비밀 협약... 일반인 희생 묵인</b></span><span class="comment-cnt">[312]</span></td>
+  <td class="col-author">진실의목소리</td><td class="col-date">04.05</td><td class="col-views">51,290</td><td class="col-rec"><span class="rec-up">2103</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p5"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">[단독] 정부, 능력자와 비밀 협약 맺어... 일반인 희생 묵인 중</div>
+  <div class="pd-info"><span>진실의목소리</span><span>2189.04.05 08:30</span><span>조회 51,290</span></div>
+  <div class="post-body">내부 관계자 제보에 따르면 정부는 이미 주요 능력자 세력과 비밀리에 협약을 맺은 상태입니다.
+
+- 능력자 범죄에 대한 수사 면제
+- 특정 구역을 능력자 "자치구"로 양도
+- 일반인 피해 보상 기금을 능력자 지원금으로 전용
+
+정부는 우리를 버렸습니다. 더 이상 기대할 것은 없습니다.
+
+(※ 제보자 보호를 위해 원본 문서는 공개하지 않습니다)</div>
+  <div class="comments-section"><div class="comments-header">댓글 312개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(182.220)</span></span><span class="cmt-date">04.05 08:42</span></div><div class="cmt-body">역시... 알고는 있었지만 진짜였구나</div><div class="cmt-vote"><span class="cv-up">▲ 678</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(203.234)</span></span><span class="cmt-date">04.05 09:01</span></div><div class="cmt-body">출처도 없이 단독? 가짜뉴스 아닌가</div><div class="cmt-vote"><span class="cv-up">▲ 23</span> <span class="cv-down">▼ 445</span></div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글6: 기억 조작 ===== -->
+<tr class="board-row" onclick="toggleDetail('p6')">
+  <td class="col-num">48612</td><td class="col-tag"><span class="tag t-testimony">피해</span></td>
+  <td class="col-title"><span class="title-text">능력자한테 기억 조작 당한 것 같습니다</span><span class="comment-cnt">[67]</span></td>
+  <td class="col-author">ㅇㅇ <span class="author-ip">(59.12)</span></td><td class="col-date">04.06</td><td class="col-views">8,120</td><td class="col-rec"><span class="rec-up">445</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p6"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">능력자한테 기억 조작 당한 것 같습니다</div>
+  <div class="pd-info"><span>ㅇㅇ (59.12)</span><span>2189.04.06 16:45</span><span>조회 8,120</span></div>
+  <div class="post-body">3일간의 기억이 통째로 없어요. 병원에서는 원인 불명이라고 하고, 경찰은 "피해 사실을 입증할 수 없다"고 합니다.
+
+핸드폰 기록을 보니까 그 3일 동안 ████ 구역을 다녀왔더라고요. 거기 능력자 다수 거주 지역이잖아요.
+
+같은 경험 있으신 분 계세요?</div>
+  <div class="comments-section"><div class="comments-header">댓글 67개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(175.209)</span></span><span class="cmt-date">04.06 17:02</span></div><div class="cmt-body">저도요... 2일이 통째로 없어요. 깨어나니까 다른 도시에 있었음</div><div class="cmt-vote"><span class="cv-up">▲ 201</span></div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글7: 삭제 ===== -->
+<tr class="board-row deleted-row">
+  <td class="col-num">48701</td><td class="col-tag"><span class="tag t-general">자유</span></td>
+  <td class="col-title"><span class="title-text" style="color:var(--text-dim);text-decoration:line-through;">삭제된 게시물입니다. (사유: 능력자 테러 선동)</span></td>
+  <td class="col-author"><span style="color:var(--hot);font-size:11px;">삭제됨</span></td><td class="col-date">04.06</td><td class="col-views">—</td><td class="col-rec" style="color:var(--text-dim);">2891</td>
+</tr>
+
+<!-- ===== 글8: 생존 가이드 ===== -->
+<tr class="board-row concept-row" onclick="toggleDetail('p8')">
+  <td class="col-num">48780</td><td class="col-tag"><span class="tag t-general">자유</span></td>
+  <td class="col-title"><span class="concept-icon">개</span><span class="title-text"><b>능력자 조우 시 생존 가이드 (갱신판)</b></span><span class="comment-cnt">[201]</span></td>
+  <td class="col-author">생존매뉴얼</td><td class="col-date">04.06</td><td class="col-views">41,200</td><td class="col-rec"><span class="rec-up">2340</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p8"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">능력자 조우 시 생존 가이드 (갱신판)</div>
+  <div class="pd-info"><span>생존매뉴얼</span><span>2189.04.06 20:11</span><span>조회 41,200</span></div>
+  <div class="post-body">지난번 가이드에서 업데이트된 내용 반영합니다.
+
+1. 능력자가 보이면 즉시 반대 방향으로 이동. 절대 뛰지 마세요. 움직임에 반응하는 능력자가 있습니다.
+2. 빛, 소리, 진동이 감지되면 해당 구역에서 최대한 멀리. 능력 발동의 전조입니다.
+3. 능력자 간 전투가 시작되면 건물 안이 더 위험합니다. 붕괴 가능성. 탁 트인 곳으로.
+4. 지하는 비교적 안전하나, 지면조작 능력자에게는 무방비.
+5. 능력자에게 말을 걸지 마세요. 자극하면 안 됩니다.
+
+살아남으세요. 그게 우리가 할 수 있는 최선입니다.</div>
+  <div class="comments-section"><div class="comments-header">댓글 201개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(118.235)</span></span><span class="cmt-date">04.06 20:30</span></div><div class="cmt-body">이런 걸 외우고 다녀야 하는 세상이라니</div><div class="cmt-vote"><span class="cv-up">▲ 567</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(49.142)</span></span><span class="cmt-date">04.06 20:45</span></div><div class="cmt-body">저장했습니다. 감사합니다. 진짜로.</div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글9: 속보 인천 ===== -->
+<tr class="board-row" onclick="toggleDetail('p9')">
+  <td class="col-num">48890</td><td class="col-tag"><span class="tag t-news">뉴스</span></td>
+  <td class="col-title"><span class="title-text"><b>[속보] 인천 서구 일대 능력자 충돌 — 민간인 피해 ██명</b></span><span class="comment-cnt">[178]</span></td>
+  <td class="col-author">뉴스봇</td><td class="col-date">04.07</td><td class="col-views">23,400</td><td class="col-rec"><span class="rec-up">567</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p9"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">[속보] 인천 서구 일대 능력자 충돌 — 민간인 피해 ██명</div>
+  <div class="pd-info"><span>뉴스봇</span><span>2189.04.07 14:23</span><span>조회 23,400</span></div>
+  <div class="post-body">오늘 오후 2시경 인천 서구에서 능력자 간 대규모 충돌이 발생. "수호파"와 "지배파" 소속 추정. 아파트 3개 동 붕괴. 구조대 접근 제한 중.
+
+정부 대변인: "상황을 주시하고 있다."</div>
+  <div class="comments-section"><div class="comments-header">댓글 178개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(124.50)</span></span><span class="cmt-date">04.07 14:30</span></div><div class="cmt-body">지금 창밖에서 폭발음 나고 있음... 실시간임</div><div class="cmt-vote"><span class="cv-up">▲ 334</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(211.234)</span></span><span class="cmt-date">04.07 14:45</span></div><div class="cmt-body">"수호파"가 뭘 지킴? 건물 3개 동 날아갔어</div><div class="cmt-vote"><span class="cv-up">▲ 890</span></div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글10: 무섭다 ===== -->
+<tr class="board-row" onclick="toggleDetail('p10')">
+  <td class="col-num">49102</td><td class="col-tag"><span class="tag t-general">자유</span></td>
+  <td class="col-title"><span class="title-text">밤에 혼자 걷기 무서운 세상이 된 게 실감남</span><span class="comment-cnt">[45]</span></td>
+  <td class="col-author">ㅇㅇ <span class="author-ip">(223.38)</span></td><td class="col-date">04.08</td><td class="col-views">3,450</td><td class="col-rec"><span class="rec-up">234</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p10"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">밤에 혼자 걷기 무서운 세상이 된 게 실감남</div>
+  <div class="pd-info"><span>ㅇㅇ (223.38)</span><span>2189.04.08 22:14</span></div>
+  <div class="post-body">예전에는 호신용품 들고 다니면 됐는데, 지금은 능력자 하나 나타나면 총도 칼도 소용없잖아요.
+
+어제 퇴근길에 골목에서 뭔가 빛나는 거 보고 뛰어서 돌아왔어요. 우리한테는 아무런 수단이 없다는 게... 그냥 맞으면 죽는 거잖아요.</div>
+  <div class="comments-section"><div class="comments-header">댓글 45개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(182.220)</span></span><span class="cmt-date">04.08 22:30</span></div><div class="cmt-body">ㅇㅈ... 대항할 수 있는 수단이 있어야 하는데</div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글11: 학교 ===== -->
+<tr class="board-row" onclick="toggleDetail('p11')">
+  <td class="col-num">49150</td><td class="col-tag"><span class="tag t-testimony">피해</span></td>
+  <td class="col-title"><span class="title-text">우리 학교 옆에 능력자 전투 있었는데 학교 측은 묵묵부답</span><span class="comment-cnt">[92]</span></td>
+  <td class="col-author">ㅇㅇ <span class="author-ip">(210.90)</span></td><td class="col-date">04.08</td><td class="col-views">6,780</td><td class="col-rec"><span class="rec-up">345</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p11"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">우리 학교 옆에 능력자 전투 있었는데 학교 측은 묵묵부답</div>
+  <div class="pd-info"><span>ㅇㅇ (210.90)</span><span>2189.04.08 17:40</span></div>
+  <div class="post-body">수업 중에 운동장 너머에서 폭발음이 났어요. 창문이 전부 깨졌고, 애들 몇 명 유리에 다쳤습니다.
+
+선생님들도 어쩔 줄 모르시고, 학교 측은 "자연재해로 인한 사고"라고 공지 올렸어요. 다들 봤는데? 하늘에서 사람이 날아다니면서 빔 쏘는 걸?
+
+자연재해래요 ㅋㅋ</div>
+  <div class="comments-section"><div class="comments-header">댓글 92개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(121.165)</span></span><span class="cmt-date">04.08 18:02</span></div><div class="cmt-body">자연재해 ㅋㅋㅋㅋㅋ 대한민국 교육의 현실</div><div class="cmt-vote"><span class="cv-up">▲ 234</span></div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글12: 능력자 좀비 루머 ===== -->
+<tr class="board-row" onclick="toggleDetail('p12')">
+  <td class="col-num">49210</td><td class="col-tag"><span class="tag t-discuss">토론</span></td>
+  <td class="col-title"><span class="title-text">능력자가 죽으면 능력이 폭주한다는 거 사실임?</span><span class="comment-cnt">[134]</span></td>
+  <td class="col-author">ㅇㅇ <span class="author-ip">(39.118)</span></td><td class="col-date">04.09</td><td class="col-views">9,870</td><td class="col-rec"><span class="rec-up">189</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p12"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">능력자가 죽으면 능력이 폭주한다는 거 사실임?</div>
+  <div class="pd-info"><span>ㅇㅇ (39.118)</span><span>2189.04.09 13:22</span></div>
+  <div class="post-body">군대 갔다 온 형이 그러는데, 능력자를 사살하면 죽는 순간에 능력이 통제 안 되면서 폭발한다고.
+
+그래서 함부로 못 죽인다고... 이게 사실이면 진짜 답이 없는 거 아님?</div>
+  <div class="comments-section"><div class="comments-header">댓글 134개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(58.120)</span></span><span class="cmt-date">04.09 13:40</span></div><div class="cmt-body">어떤 능력은 그렇고 어떤 능력은 아닌 걸로 알고 있음. 근데 어떤 게 어떤 건지 모르니까 그게 문제</div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(211.234)</span></span><span class="cmt-date">04.09 14:01</span></div><div class="cmt-body">죽여도 안 되고 안 죽여도 안 되고 ㅋㅋ 인간은 뭘 해야 하냐고</div><div class="cmt-vote"><span class="cv-up">▲ 401</span></div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글13: 이사 ===== -->
+<tr class="board-row" onclick="toggleDetail('p13')">
+  <td class="col-num">49301</td><td class="col-tag"><span class="tag t-general">자유</span></td>
+  <td class="col-title"><span class="title-text">능력자 적은 지역 정보 공유합니다</span><span class="comment-cnt">[223]</span></td>
+  <td class="col-author">이사준비중</td><td class="col-date">04.09</td><td class="col-views">28,900</td><td class="col-rec"><span class="rec-up">890</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p13"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">능력자 적은 지역 정보 공유합니다</div>
+  <div class="pd-info"><span>이사준비중</span><span>2189.04.09 19:55</span><span>조회 28,900</span></div>
+  <div class="post-body">능력자 밀집도 낮은 지역 정리해봤어요. 비공식 데이터 기반이라 100% 정확하지는 않지만...
+
+- ████ 군: 지난 1년간 능력자 목격 0건
+- ██ 면: 산간지역, 접근성 낮아 비교적 안전
+- ████ 도서: 섬 지역, 능력자 이동 제한적
+
+다들 살아남읍시다.</div>
+  <div class="comments-section"><div class="comments-header">댓글 223개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(175.209)</span></span><span class="cmt-date">04.09 20:10</span></div><div class="cmt-body">감사합니다 진지하게 이사 고려 중</div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(112.170)</span></span><span class="cmt-date">04.09 20:22</span></div><div class="cmt-body">이런 글이 올라오는 자체가 비정상인 세상이다</div><div class="cmt-vote"><span class="cv-up">▲ 345</span></div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글14: 삭제 2 ===== -->
+<tr class="board-row deleted-row">
+  <td class="col-num">49350</td><td class="col-tag"><span class="tag t-discuss">토론</span></td>
+  <td class="col-title"><span class="title-text" style="color:var(--text-dim);text-decoration:line-through;">삭제된 게시물입니다. (사유: 허위 정보 유포)</span></td>
+  <td class="col-author"><span style="color:var(--hot);font-size:11px;">삭제됨</span></td><td class="col-date">04.09</td><td class="col-views">—</td><td class="col-rec" style="color:var(--text-dim);">456</td>
+</tr>
+
+<!-- ===== 글15: SR 모집글 ===== -->
+<tr class="board-row notice-row concept-row" onclick="toggleDetail('p15')" style="border-left:3px solid var(--blue);">
+  <td class="col-num">공지</td><td class="col-tag"><span class="tag t-notice">공지</span></td>
+  <td class="col-title"><span class="hot-icon">HOT</span><span class="concept-icon">개</span><span class="title-text"><b>[모집] 인류를 위한 영웅을 찾습니다.</b></span><span class="comment-cnt">[891]</span></td>
+  <td class="col-author"><span style="color:var(--blue);font-weight:500;">프로젝트 SR</span></td><td class="col-date">04.10</td><td class="col-views">89,120</td><td class="col-rec"><span class="rec-up">4502</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p15"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">[모집] 인류를 위한 영웅을 찾습니다.</div>
+  <div class="pd-info"><span style="color:var(--blue);">프로젝트 SR</span><span>2189.04.10 00:00</span><span>조회 89,120</span><span>추천 4,502</span></div>
+  <div class="post-body">우리에게도 싸울 수 있는 힘이 필요합니다.
+
+정부는 우리를 지키지 않습니다. 대화와 회의는 실패했습니다.
+
+그래서 우리가 직접 만들기로 했습니다. 일반인의, 일반인에 의한, 일반인을 위한 영웅을.
+
+████ 연구팀이 수년간 연구한 결과, 일반인에게 능력을 부여할 수 있는 기술의 가능성이 확인되었습니다.
+
+위험합니다. 숨기지 않겠습니다. 성공 확률도 높지 않습니다.
+하지만 누군가는 나서야 합니다.
+
+자격 요건:
+- 일반인 인증 완료자 / 만 18세 이상
+- 신체 건강 기준 충족자
+- 인류를 위해 모든 것을 걸 각오가 있는 자
+
+— Project SR
+"우리는 무기가 없을 뿐이다. 이제 무기를 만들 때다."</div>
+  <div class="vote-bar"><div class="vote-btn up"><div class="v-icon">▲</div><span class="v-count">4502</span></div><div class="vote-btn down"><div class="v-icon">▼</div><span class="v-count">34</span></div></div>
+  <div class="comments-section"><div class="comments-header">댓글 891개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(49.142)</span></span><span class="cmt-date">04.10 00:03</span></div><div class="cmt-body">드디어... 누군가 나섰다</div><div class="cmt-vote"><span class="cv-up">▲ 1204</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(112.167)</span></span><span class="cmt-date">04.10 00:12</span></div><div class="cmt-body">DM 보냈습니다. 평택에서 가족 잃었습니다. 뭐든 하겠습니다.</div><div class="cmt-vote"><span class="cv-up">▲ 890</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(203.234)</span></span><span class="cmt-date">04.10 00:30</span></div><div class="cmt-body">이거 인체실험 아님? 성공 확률이 낮다면서?</div><div class="cmt-vote"><span class="cv-up">▲ 67</span> <span class="cv-down">▼ 312</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author op" style="color:var(--blue);">프로젝트 SR</span><span class="cmt-date">04.10 01:00</span></div><div class="cmt-body">모든 위험은 사전에 고지됩니다. 강요는 없습니다.</div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글16: 지원 후기 ===== -->
+<tr class="board-row concept-row" onclick="toggleDetail('p16')">
+  <td class="col-num">49890</td><td class="col-tag"><span class="tag t-general">자유</span></td>
+  <td class="col-title"><span class="concept-icon">개</span><span class="title-text"><b>SR 지원했습니다. 가족들한테는 비밀로</b></span><span class="comment-cnt">[123]</span></td>
+  <td class="col-author">ㅇㅇ <span class="author-ip">(175.209)</span></td><td class="col-date">04.12</td><td class="col-views">15,600</td><td class="col-rec"><span class="rec-up">1230</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p16"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">SR 지원했습니다. 가족들한테는 비밀로</div>
+  <div class="pd-info"><span>ㅇㅇ (175.209)</span><span>2189.04.12 03:27</span></div>
+  <div class="post-body">솔직히 무섭습니다. 근데 이대로 사는 것도 사는 게 아니라서...
+
+가족들한테는 출장 간다고 했습니다. 돌아올 수 있으면 좋겠는데.
+
+혹시 안 돌아오면 이 글이 마지막 흔적이겠네요. 같이 지원한 사람들, 다들 힘내요.</div>
+  <div class="comments-section"><div class="comments-header">댓글 123개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(182.220)</span></span><span class="cmt-date">04.12 03:40</span></div><div class="cmt-body">ㅠㅠ 꼭 돌아와요</div><div class="cmt-vote"><span class="cv-up">▲ 890</span></div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글17: 가족 반대 ===== -->
+<tr class="board-row" onclick="toggleDetail('p17')">
+  <td class="col-num">49950</td><td class="col-tag"><span class="tag t-general">자유</span></td>
+  <td class="col-title"><span class="title-text">남편이 SR 지원하겠다는데 말려야 하나요</span><span class="comment-cnt">[78]</span></td>
+  <td class="col-author">ㅇㅇ <span class="author-ip">(223.131)</span></td><td class="col-date">04.13</td><td class="col-views">8,900</td><td class="col-rec"><span class="rec-up">456</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p17"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">남편이 SR 지원하겠다는데 말려야 하나요</div>
+  <div class="pd-info"><span>ㅇㅇ (223.131)</span><span>2189.04.13 21:05</span></div>
+  <div class="post-body">남편이 어제 갑자기 SR에 지원하겠다고 했어요. 아이가 둘인데...
+
+이해는 해요. 매일 뉴스 보면서 분노하는 거. 무력감. 다 이해해요.
+근데 성공 확률도 낮다면서요? 실패하면 어떻게 되는 건데?
+
+말려야 할까요. 아니면 보내줘야 할까요.</div>
+  <div class="comments-section"><div class="comments-header">댓글 78개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(112.170)</span></span><span class="cmt-date">04.13 21:20</span></div><div class="cmt-body">말리세요. 제발. 아이들 생각하세요.</div><div class="cmt-vote"><span class="cv-up">▲ 234</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(49.142)</span></span><span class="cmt-date">04.13 21:35</span></div><div class="cmt-body">누군가는 나서야 한다는 것도 사실이잖아... 어렵다 진짜</div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글18: 일상글 ===== -->
+<tr class="board-row" onclick="toggleDetail('p18')">
+  <td class="col-num">50120</td><td class="col-tag"><span class="tag t-general">자유</span></td>
+  <td class="col-title"><span class="title-text">요즘 꿈에서도 능력자한테 쫓기는 꿈 꿈</span><span class="comment-cnt">[34]</span></td>
+  <td class="col-author">ㅇㅇ <span class="author-ip">(58.120)</span></td><td class="col-date">04.15</td><td class="col-views">2,100</td><td class="col-rec"><span class="rec-up">120</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p18"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">요즘 꿈에서도 능력자한테 쫓기는 꿈 꿈</div>
+  <div class="pd-info"><span>ㅇㅇ (58.120)</span><span>2189.04.15 02:34</span></div>
+  <div class="post-body">새벽에 또 깼네요. 누가 쫓아오는 꿈이에요 매일. 하늘에서 내려다보는 존재가 있는데 얼굴이 없어요.
+
+이거 PTSD인가... 병원 가야 하나. 같은 사람 많을 것 같은데.</div>
+  <div class="comments-section"><div class="comments-header">댓글 34개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(223.38)</span></span><span class="cmt-date">04.15 02:50</span></div><div class="cmt-body">저도요... 진짜 잠을 못 자겠어요</div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글19: 소식두절 ===== -->
+<tr class="board-row" onclick="toggleDetail('p19')">
+  <td class="col-num">51203</td><td class="col-tag"><span class="tag t-general">자유</span></td>
+  <td class="col-title"><span class="title-text">SR 지원자들 소식 아는 사람?</span><span class="comment-cnt">[56]</span></td>
+  <td class="col-author">ㅇㅇ <span class="author-ip">(118.235)</span></td><td class="col-date">04.28</td><td class="col-views">12,300</td><td class="col-rec"><span class="rec-up">345</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p19"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">SR 지원자들 소식 아는 사람?</div>
+  <div class="pd-info"><span>ㅇㅇ (118.235)</span><span>2189.04.28 19:05</span></div>
+  <div class="post-body">SR 프로젝트 지원하고 간 사람들이 2주째 연락이 없습니다.
+
+제 남동생이 지원했는데, "1주일이면 끝난다"고 했거든요. 2주가 지나도 전화도 안 되고.
+
+프로젝트 SR 측에 연락하려고 해도 DM이 안 가요. 뭔가 잘못된 거 아닌가요...</div>
+  <div class="comments-section"><div class="comments-header">댓글 56개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(223.131)</span></span><span class="cmt-date">04.28 19:20</span></div><div class="cmt-body">저희 남편도... 3주째예요. 아이가 매일 아빠 어디 갔냐고 물어봐요</div><div class="cmt-vote"><span class="cv-up">▲ 567</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(49.142)</span></span><span class="cmt-date">04.29 08:12</span></div><div class="cmt-body">프로젝트 SR 공지 계정이 비활성화됐는데...?</div><div class="cmt-vote"><span class="cv-up">▲ 234</span></div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글20: 삭제3 ===== -->
+<tr class="board-row deleted-row">
+  <td class="col-num">52001</td><td class="col-tag"><span class="tag t-testimony">피해</span></td>
+  <td class="col-title"><span class="title-text" style="color:var(--text-dim);text-decoration:line-through;">삭제된 게시물입니다. (사유: 외부 요청에 의한 삭제)</span></td>
+  <td class="col-author"><span style="color:var(--hot);font-size:11px;">삭제됨</span></td><td class="col-date">05.01</td><td class="col-views">—</td><td class="col-rec" style="color:var(--text-dim);">3456</td>
+</tr>
+
+<!-- ===== 글21: 불안 ===== -->
+<tr class="board-row" onclick="toggleDetail('p21')">
+  <td class="col-num">52102</td><td class="col-tag"><span class="tag t-general">자유</span></td>
+  <td class="col-title"><span class="title-text">SR 관련 글 계속 삭제되는 거 나만 보임?</span><span class="comment-cnt">[89]</span></td>
+  <td class="col-author">ㅇㅇ <span class="author-ip">(39.118)</span></td><td class="col-date">05.02</td><td class="col-views">7,890</td><td class="col-rec"><span class="rec-up">456</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p21"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">SR 관련 글 계속 삭제되는 거 나만 보임?</div>
+  <div class="pd-info"><span>ㅇㅇ (39.118)</span><span>2189.05.02 11:23</span></div>
+  <div class="post-body">어제부터 SR 관련 글이 계속 삭제되고 있어요. 운영자가 삭제한 게 아니라 "외부 요청"이래요.
+
+외부 요청이 뭔데? 누가 요청한 건데?
+
+뭔가 은폐하려는 거 아닌가...</div>
+  <div class="comments-section"><div class="comments-header">댓글 89개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(182.220)</span></span><span class="cmt-date">05.02 11:35</span></div><div class="cmt-body">확실히 뭔가 이상함. 운영자한테 물어봐도 답 안 해</div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(211.234)</span></span><span class="cmt-date">05.02 12:01</span></div><div class="cmt-body">이 글도 삭제되겠지... 스크린샷 찍어둬라 다들</div><div class="cmt-vote"><span class="cv-up">▲ 345</span></div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글22: 폭발 속보 ===== -->
+<tr class="board-row hot-row concept-row" onclick="toggleDetail('p22')" style="border-left:3px solid var(--hot);">
+  <td class="col-num">52340</td><td class="col-tag"><span class="tag t-news">속보</span></td>
+  <td class="col-title"><span class="hot-icon">HOT</span><span class="concept-icon">개</span><span class="title-text"><b>[속보] ████ 연구시설 폭발 — 대규모 능력 반응 감지</b></span><span class="comment-cnt">[2104]</span></td>
+  <td class="col-author">뉴스봇</td><td class="col-date">05.03</td><td class="col-views">201K</td><td class="col-rec"><span class="rec-up">8920</span></td>
+</tr>
+<tr class="post-detail-wrap" id="p22"><td colspan="7"><div class="post-detail-inner">
+  <div class="pd-title">[속보] ████ 연구시설 폭발 — 대규모 능력 반응 감지</div>
+  <div class="pd-info"><span>뉴스봇</span><span>2189.05.03 04:12</span><span>조회 201,000</span><span>추천 8,920</span></div>
+  <div class="post-body">오늘 새벽 3시경 ████ 소재 비공개 연구시설에서 대규모 폭발 발생.
+
+폭발 직후 반경 ██km 내에서 비정상적 능력 반응 다수 감지. 해당 지역 전면 통제 중.
+
+일각에서는 "프로젝트 SR"과의 관련성 제기. 사상자 수 불명. 생존 여부 불명.</div>
+  <div class="vote-bar"><div class="vote-btn up"><div class="v-icon">▲</div><span class="v-count">8920</span></div><div class="vote-btn down"><div class="v-icon">▼</div><span class="v-count">7</span></div></div>
+  <div class="comments-section"><div class="comments-header">댓글 2,104개</div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(118.235)</span></span><span class="cmt-date">05.03 04:15</span></div><div class="cmt-body">동생... 동생이 거기 있어... 제발 살아있어줘...</div><div class="cmt-vote"><span class="cv-up">▲ 3401</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(223.131)</span></span><span class="cmt-date">05.03 04:18</span></div><div class="cmt-body">아... 아...</div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(182.220)</span></span><span class="cmt-date">05.03 04:22</span></div><div class="cmt-body">"능력 반응 감지"? 일반인한테 실험한 거 맞는 거야?</div><div class="cmt-vote"><span class="cv-up">▲ 1890</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(203.234)</span></span><span class="cmt-date">05.03 04:30</span></div><div class="cmt-body">그때 내가 뭐라고 했어. 인체실험이라고. 제발 좀 들었어야지...</div><div class="cmt-vote"><span class="cv-up">▲ 2340</span></div></div>
+    <div class="cmt"><div class="cmt-top"><span class="cmt-author">ㅇㅇ <span class="cmt-ip">(49.142)</span></span><span class="cmt-date">05.03 04:35</span></div><div class="cmt-body">우리가... 영웅을 만든다면서... 결국 우리가 우리를 죽인 거야?</div><div class="cmt-vote"><span class="cv-up">▲ 4560</span></div></div>
+  </div>
+</div></td></tr>
+
+<!-- ===== 글23: 갤러리 폐쇄 ===== -->
+<tr class="board-row notice-row" style="background:#fff0f0;border-left:3px solid var(--hot);">
+  <td class="col-num">공지</td><td class="col-tag"><span class="tag t-notice">공지</span></td>
+  <td class="col-title"><span class="title-text" style="color:var(--hot);"><b>[긴급] OH 갤러리 운영 중단 안내</b></span></td>
+  <td class="col-author"><span style="color:var(--hot);">운영자</span></td><td class="col-date">05.04</td><td class="col-views">500K+</td><td class="col-rec"><span class="rec-up" style="color:var(--hot);">12340</span></td>
+</tr>
+
+</tbody></table></div>
+
+<div class="board-footer"><div class="page-nav">
+  <div class="pg disabled">◀</div><div class="pg active">1</div><div class="pg">2</div><div class="pg">3</div><div class="pg disabled">▶</div>
+</div></div>
+
+<div class="site-footer">
+  OH Gallery ⓒ 2189 — Only Human<br>우리는 무기가 없을 뿐이다
+  <div class="footer-warn">이 아카이브는 ████에 의해 보존되었습니다</div>
+</div>
+
+</div><!-- end community-content -->
+
+<!-- ========================== -->
+<!-- HIDDEN CLASSIFIED CONTENT  -->
+<!-- ========================== -->
+<div class="hidden-content" id="hiddenContent">
+<div class="hc-container">
+
+  <div class="hc-header">
+    <div class="hc-classification">CLEARANCE LEVEL: ████ // EYES ONLY</div>
+    <div class="hc-title">PROJECT SR — INTERNAL</div>
+    <div class="hc-subtitle">
+      분류: 기밀 &nbsp;│&nbsp; 접근 코드: SORRY6<br>
+      아래 자료는 외부 유출 시 <span class="iv-redacted">[REDACTED]</span> 조항에 의거 처벌됩니다.
+    </div>
+  </div>
+
+  <!-- SECTION 1: 면담 기록 -->
+  <div class="hc-section">
+    <div class="hc-section-title"><span class="sec-num">01</span> // 피험자 06번 면담 녹취록</div>
+
+    <div class="iv-meta">
+      면담 일시: 2189.██.██ &nbsp;│&nbsp; 면담자: <span class="iv-redacted">[REDACTED]</span> 수석연구원<br>
+      피면담자: 피험자 06 / 하██ / 능력: 수명 이동<br>
+      녹취 상태: 부분 손상 &nbsp;│&nbsp; 면담 목적: 이식 안정성 확인 및 심리 상태 평가<br>
+      <span style="color:#c44a2f;">※ 06번은 6명의 피험자 중 유일하게 이식이 안정적으로 정착된 개체임</span>
+    </div>
+
+    <div class="iv-ts">[00:00:04]</div>
+    <div class="iv-line sp-interviewer"><span class="iv-speaker">면담자</span><span class="iv-text">녹음 시작합니다. 오늘 컨디션은 어떻습니까?</span></div>
+    <div class="iv-line sp-06"><span class="iv-speaker">06</span><span class="iv-text">...살아있네요. 그것만으로 충분하지 않나요.</span></div>
+    <div class="iv-line sp-interviewer"><span class="iv-speaker">면담자</span><span class="iv-text">능력 사용 시 신체에 이상은?</span></div>
+    <div class="iv-line sp-06"><span class="iv-speaker">06</span><span class="iv-text">이상이요? 다른 애들은 "이상"이 생기기 전에 죽었잖아요. 저한테 이상이 있는지 없는지가 중요한 게 아니라, 왜 저만 살았는지를 물어봐야 하는 거 아닌가요.</span></div>
+    <div class="iv-stage">침묵. 면담자가 서류를 넘기는 소리.</div>
+
+    <div class="iv-ts">[00:02:17]</div>
+    <div class="iv-line sp-interviewer"><span class="iv-speaker">면담자</span><span class="iv-text">01번부터 05번까지의 실험 결과는 알고 계시죠?</span></div>
+    <div class="iv-line sp-06"><span class="iv-speaker">06</span><span class="iv-text">알고 있죠. 옆방에서 비명 지르는 거 다 들었으니까요. 03번은 3일을 버텼어요. 마지막에 절 보면서 웃더라고요. "너는 되면 좋겠다"고.</span></div>
+    <div class="iv-line sp-interviewer"><span class="iv-speaker">면담자</span><span class="iv-text">...그 부분은 기록에—</span></div>
+    <div class="iv-line sp-06"><span class="iv-speaker">06</span><span class="iv-text">기록에 없겠죠. 당신들한테 우리는 번호니까. 이름도 없이 죽었잖아요 그 사람들.</span></div>
+
+    <div class="iv-ts">[00:05:41]</div>
+    <div class="iv-line sp-interviewer"><span class="iv-speaker">면담자</span><span class="iv-text">수명 이동 능력에 대해 설명해주실 수 있습니까?</span></div>
+    <div class="iv-line sp-06"><span class="iv-speaker">06</span><span class="iv-text">...만지면 돼요. 상대의 남은 수명을 느낄 수 있어요. 그리고 그걸... 옮길 수 있어요. 상대에게서 저에게로. 또는 저에게서 상대에게로.</span></div>
+    <div class="iv-line sp-interviewer"><span class="iv-speaker">면담자</span><span class="iv-text">양방향이 가능하다?</span></div>
+    <div class="iv-line sp-06"><span class="iv-speaker">06</span><span class="iv-text">네. 뺏을 수도, 줄 수도 있어요. 당신들은 뺏는 쪽에만 관심 있겠지만.</span></div>
+    <div class="iv-stage">면담자가 기침하는 소리.</div>
+    <div class="iv-line sp-interviewer"><span class="iv-speaker">면담자</span><span class="iv-text">현재까지 능력을 사용한 횟수는?</span></div>
+    <div class="iv-line sp-06"><span class="iv-speaker">06</span><span class="iv-text"><span class="iv-redacted">[REDACTED]</span>번요. 전부 당신들이 시킨 거잖아요. 그 실험용 <span class="iv-redacted">[REDACTED]</span>들한테.</span></div>
+    <div class="iv-corrupt">[ 음성 일부 의도적 삭제 ]</div>
+
+    <div class="iv-ts">[00:10:22]</div>
+    <div class="iv-line sp-interviewer"><span class="iv-speaker">면담자</span><span class="iv-text">솔직히 묻겠습니다. 이 시설에서 나가고 싶습니까?</span></div>
+    <div class="iv-line sp-06"><span class="iv-speaker">06</span><span class="iv-text">...</span></div>
+    <div class="iv-line sp-06"><span class="iv-speaker">06</span><span class="iv-text">저를 여기서 꺼내줄 생각이 있으면 그런 질문을 하겠죠. 없으니까 묻는 거잖아요. 제가 뭐라고 대답하든 달라지는 건 없어요.</span></div>
+    <div class="iv-line sp-interviewer"><span class="iv-speaker">면담자</span><span class="iv-text">프로젝트가 성공하면 당신은 영웅이 됩니다. 인류를 위한—</span></div>
+    <div class="iv-line sp-06"><span class="iv-speaker">06</span><span class="iv-text">(웃음) 영웅? 저는 영웅 아니에요. 여기 있는 누구도 영웅이 아니에요. 우리는 그냥 실험체예요. 당신들이 희망이라는 포장지로 싸서 사람들을 모은 거잖아요.</span></div>
+    <div class="iv-line sp-06"><span class="iv-speaker">06</span><span class="iv-text">"우리는 무기가 없을 뿐이다"? 아뇨. 우리가 무기가 된 거예요.</span></div>
+
+    <div class="iv-ts">[00:14:08]</div>
+    <div class="iv-line sp-interviewer"><span class="iv-speaker">면담자</span><span class="iv-text">면담을 마치겠—</span></div>
+    <div class="iv-line sp-06"><span class="iv-speaker">06</span><span class="iv-text">하나만 더. 당신, 남은 수명 알고 싶어요?</span></div>
+    <div class="iv-stage">긴 침묵.</div>
+    <div class="iv-line sp-06"><span class="iv-speaker">06</span><span class="iv-text">농담이에요. ...아마.</span></div>
+    <div class="iv-corrupt">[ 녹음 종료 ]</div>
+  </div>
+
+  <!-- SECTION 2: 탈출 보고서 -->
+  <div class="hc-section">
+    <div class="hc-section-title"><span class="sec-num">02</span> // 피험자 06번 탈출 보고서</div>
+
+    <div class="report-box">
+      <div class="report-label">사건 보고서 — 기밀 등급 ████</div>
+      <div class="report-content">사건명: 피험자 06번 시설 이탈 사건
+발생 일시: 2189.05.03 02:47 (연구시설 폭발 약 13분 전)
+보고자: <span class="iv-redacted">[REDACTED]</span>
+
+경위:
+05.03 02:47, 피험자 06번의 격리실 생체 모니터링이 일제히 오프라인 전환됨.
+02:48, 격리실 문이 내부에서 개방됨. 잠금 해제 방법 불명. 전자식 잠금장치에 물리적 손상 없음.
+02:49-02:55, 06번은 복도를 이동하며 경비 인원 3명과 접촉. 3명 모두 의식 불명 상태로 발견.
+신체 외상 없음. 단, 3명 모두 생체 나이가 급격히 노화한 것으로 확인됨.
+(<span class="iv-redacted">[REDACTED]</span>세 → 추정 <span class="iv-redacted">[REDACTED]</span>세)
+수명 이동 능력 사용으로 추정.
+02:58, 06번은 시설 B동 비상구를 통해 외부로 이탈.
+추적 시도했으나 03:00, 시설 내부에서 대규모 폭발 발생하여 추적 불가.
+
+06번이 폭발을 유발했는지, 혹은 폭발을 예지하고 탈출한 것인지는 현재 불명.
+
+현재 상태: 행방불명
+위험 등급: <span style="color:#c44a2f;">최상위</span>
+
+비고:
+06번 탈출 직전 격리실 벽면에 다음 문구가 발견됨:
+
+"미안해요. 하지만 여기서 죽을 수는 없어요.
+그들이 만든 영웅은 필요 없어요.
+제가 직접 선택할게요. 뭐가 되든."
+
+— 하██</div>
+    </div>
+
+    <div class="report-box">
+      <div class="report-label">추가 보고 — 05.03 12:00 갱신</div>
+      <div class="report-content">폭발 이후 시설 잔해에서 발견된 피험자 명단:
+
+피험자 01 — 사망 (이식 실패, 세포 괴사)
+피험자 02 — 사망 (이식 실패, 장기 부전)
+피험자 03 — 사망 (이식 부분 성공 후 능력 폭주)
+피험자 04 — 사망 (이식 실패, 뇌사)
+피험자 05 — 사망 (이식 실패, <span class="iv-redacted">[REDACTED]</span>)
+피험자 06 — <span style="color:#c44a2f;">행방불명 (탈출)</span>
+
+06번의 생체 반응은 폭발 반경 외부에서 마지막으로 감지된 후 소실.
+추적 불가.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: 뉴스 -->
+  <div class="hc-section">
+    <div class="hc-section-title"><span class="sec-num">03</span> // 관련 보도 자료 — 기밀 해제분</div>
+
+    <div class="news-box">
+      <div class="news-source">████ 통신 │ 2189.05.15 │ 기밀 해제: 2189.██.██</div>
+      <div class="news-title">"인공 능력자" 기술 확보 성공 — 정부, 비공개 프로젝트 존재 인정</div>
+      <div class="news-body">████ 통신 단독 — 정부는 15일, 일반인에게 능력을 부여하는 기술을 확보하는 데 성공했다고 공식 발표했다.
+
+"프로젝트 SR"이라는 코드명으로 진행된 해당 프로젝트는, 능력자에 대항할 수 있는 "인공 능력자"를 만드는 것을 목적으로 했으며, 다수의 자원자를 대상으로 실험이 진행된 것으로 알려졌다.
+
+정부 관계자는 "상당한 희생이 있었지만, 결과적으로 인류가 능력자에게 대항할 수 있는 기반 기술을 확보했다"고 밝혔다.
+
+다만, 해당 기술의 성공률은 여전히 낮으며, 6명의 초기 피험자 중 생존자는 1명에 불과한 것으로 전해진다. 생존한 1명의 신원과 현재 위치는 공개되지 않았다.
+
+이 기술을 기반으로 향후 <span class="iv-redacted">[REDACTED]</span> 시스템의 구축이 검토되고 있으며, 이를 통해 능력자 통제 및 민간인 보호 체계를 수립할 계획인 것으로 알려졌다.
+
+한편, 프로젝트 SR의 희생자 유가족들은 "영웅이 아니라 실험체였다"며 정부에 진상 규명과 공식 사과를 요구하고 있다.</div>
+    </div>
+
+    <div class="news-box">
+      <div class="news-source">OH 갤러리 아카이브 │ 보존 일자: 불명</div>
+      <div class="news-title">관리자 메모</div>
+      <div class="news-body">이 모든 기록은 누군가 기억해야 합니다.
+
+OH 갤러리의 사람들은 영웅이 되고 싶었던 게 아닙니다.
+그냥 살고 싶었을 뿐입니다.
+
+06번이 어디 있든, 살아있기를.
+
+— ████</div>
+    </div>
+  </div>
+
+  <div class="hc-footer">
+    PROJECT SR — CLASSIFIED ARCHIVE<br>
+    SORRY6 // EDEN
+    <div class="warn">이 자료에 대한 접근 기록은 자동으로 저장됩니다.</div>
+  </div>
+
+</div>
+</div><!-- end hidden-content -->
+
+<script>
+/* Login */
+function openLogin() {
+  document.getElementById('loginOverlay').classList.add('show');
+  document.getElementById('loginId').focus();
+}
+function closeLogin() {
+  document.getElementById('loginOverlay').classList.remove('show');
+  document.getElementById('loginErr').style.display = 'none';
+}
+
+document.getElementById('loginPw').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') tryLogin();
+});
+document.getElementById('loginId').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('loginPw').focus();
+});
+
+function tryLogin() {
+  const id = document.getElementById('loginId').value.trim().toUpperCase();
+  const pw = document.getElementById('loginPw').value.trim().toUpperCase();
+
+  if (id === 'SORRY6' && pw === 'EDEN') {
+    closeLogin();
+    startGlitchTransition();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+/* Glitch transition */
+function startGlitchTransition() {
+  const screen = document.getElementById('glitchScreen');
+  const noise = document.getElementById('glitchNoise');
+  screen.classList.add('active');
+
+  // Generate noise
+  let noiseInterval = setInterval(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.createImageData(canvas.width, canvas.height);
+    for (let i = 0; i < imageData.data.length; i += 4) {
+      const v = Math.random() * 255;
+      imageData.data[i] = v;
+      imageData.data[i+1] = v;
+      imageData.data[i+2] = v;
+      imageData.data[i+3] = Math.random() * 30;
+    }
+    ctx.putImageData(imageData, 0, 0);
+    noise.style.backgroundImage = `url(${canvas.toDataURL()})`;
+    noise.style.opacity = Math.random() * 0.3;
+  }, 80);
+
+  // Flash effects
+  let flashCount = 0;
+  let flashInterval = setInterval(() => {
+    screen.style.background = Math.random() > 0.7 ? '#111' : '#000';
+    if (Math.random() > 0.8) screen.style.background = '#1a0000';
+    flashCount++;
+    if (flashCount > 30) {
+      clearInterval(flashInterval);
+      screen.style.background = '#000';
+    }
+  }, 100);
+
+  // Transition to hidden content
+  setTimeout(() => {
+    clearInterval(noiseInterval);
+    noise.style.opacity = '0';
+    document.getElementById('glitchText').textContent = 'ACCESS GRANTED';
+  }, 800);
+
+  setTimeout(() => {
+    screen.classList.remove('active');
+    document.getElementById('communityContent').classList.add('hide');
+    document.getElementById('hiddenContent').classList.add('show');
+    window.scrollTo(0, 0);
+  }, 3500);
+}
+
+/* Post toggle */
+function toggleDetail(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.post-detail-wrap.open').forEach(d => d.classList.remove('open'));
+  if (!isOpen) el.classList.add('open');
+}
+</script>
+
+</body>
+</html>
